@@ -1029,6 +1029,9 @@ namespace Unity.ProjectAuditor.Editor.UI
 
                 GUI.enabled = true;
 
+                GUILayout.Button(Utility.GetIcon("ArrowNavigationLeft"), EditorStyles.toolbarButton, GUILayout.ExpandWidth(false));
+                GUILayout.Button(Utility.GetIcon("ArrowNavigationRight"), EditorStyles.toolbarButton, GUILayout.ExpandWidth(false));
+
                 if (m_AnalysisState == AnalysisState.InProgress)
                 {
                     GUILayout.Label(Contents.AnalysisInProgressLabel, Styles.StatusText, GUILayout.ExpandWidth(true));
