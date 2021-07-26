@@ -33,6 +33,9 @@ namespace Unity.ProjectAuditor.Editor.UI.Framework
         protected ViewManager m_ViewManager;
 
         DependencyView m_DependencyView;
+        bool m_ShowInfo;
+        bool m_ShowWarn;
+        bool m_ShowError;
         bool m_FlatView;
         GUIContent m_HelpButtonContent;
         IssueTable m_Table;
@@ -58,6 +61,8 @@ namespace Unity.ProjectAuditor.Editor.UI.Framework
 
         public AnalysisView(ViewManager viewManager)
         {
+            m_ShowInfo = m_ShowWarn = m_ShowError = true;
+
             m_ViewManager = viewManager;
         }
 
@@ -288,6 +293,18 @@ namespace Unity.ProjectAuditor.Editor.UI.Framework
                 if (EditorGUI.EndChangeCheck())
                 {
                     SetFlatView(m_FlatView);
+                    Refresh();
+                }
+            }
+
+            if (m_Desc.showSeverityFilters)
+            {
+                EditorGUI.BeginChangeCheck();
+                m_ShowInfo = GUILayout.Toggle(m_ShowInfo, Utility.InfoIcon, EditorStyles.toolbarButton, GUILayout.ExpandWidth(false));
+                m_ShowWarn = GUILayout.Toggle(m_ShowWarn, Utility.WarnIcon, EditorStyles.toolbarButton, GUILayout.ExpandWidth(false));
+                m_ShowError = GUILayout.Toggle(m_ShowError, Utility.ErrorIcon, EditorStyles.toolbarButton, GUILayout.ExpandWidth(false));
+                if (EditorGUI.EndChangeCheck())
+                {
                     Refresh();
                 }
             }
