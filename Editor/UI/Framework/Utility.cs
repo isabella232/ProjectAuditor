@@ -151,9 +151,14 @@ namespace Unity.ProjectAuditor.Editor.UI.Framework
             return string.Join(", ", selectedStrings);
         }
 
-        public static GUIContent GetIcon(string name)
+        public static GUIContent GetIcon(string name, string tooltip)
         {
             return EditorGUIUtility.TrIconContent(ProjectAuditor.PackagePath + "/Editor/Icons/" + name + ".png");
+        }
+
+        public static GUIContent GetIcon(string name)
+        {
+            return GetIcon(name, string.Empty);
         }
 
         public static GUIContent GetStatusWheel()

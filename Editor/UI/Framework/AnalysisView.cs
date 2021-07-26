@@ -37,6 +37,8 @@ namespace Unity.ProjectAuditor.Editor.UI.Framework
         bool m_ShowWarn;
         bool m_ShowError;
         bool m_FlatView;
+
+        private GUIContent m_FlatViewToggleContent = Utility.GetIcon("ListView", "Flat View");
         GUIContent m_HelpButtonContent;
         IssueTable m_Table;
         IssueLayout m_Layout;
@@ -289,7 +291,7 @@ namespace Unity.ProjectAuditor.Editor.UI.Framework
                 GUI.enabled = true;
 
                 EditorGUI.BeginChangeCheck();
-                m_FlatView = GUILayout.Toggle(m_FlatView, "Flat View", EditorStyles.toolbarButton, GUILayout.Width(100));
+                m_FlatView = GUILayout.Toggle(m_FlatView, m_FlatViewToggleContent, EditorStyles.toolbarButton, GUILayout.ExpandWidth(false));
                 if (EditorGUI.EndChangeCheck())
                 {
                     SetFlatView(m_FlatView);
