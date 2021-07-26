@@ -3,11 +3,11 @@
 // make sure the XML doc file is present and located next to the scraped dll
 namespace Unity.ProjectAuditor.Editor.UI.Framework
 {
-    public class AnalysisView
+    public class AnalysisView : Unity.ProjectAuditor.Editor.IProjectIssueFilter
     {
+        protected Unity.ProjectAuditor.Editor.IProjectIssueFilter m_BaseFilter;
         protected Unity.ProjectAuditor.Editor.ProjectAuditorConfig m_Config;
         protected Unity.ProjectAuditor.Editor.UI.Framework.ViewDescriptor m_Desc;
-        protected Unity.ProjectAuditor.Editor.IProjectIssueFilter m_Filter;
         protected System.Collections.Generic.List<Unity.ProjectAuditor.Editor.ProjectIssue> m_Issues;
         protected Unity.ProjectAuditor.Editor.UI.Framework.Preferences m_Preferences;
         protected Unity.ProjectAuditor.Editor.UI.Framework.ViewManager m_ViewManager;
@@ -23,6 +23,7 @@ namespace Unity.ProjectAuditor.Editor.UI.Framework
         public void DrawInfo();
         protected Unity.ProjectAuditor.Editor.ProjectIssue[] GetIssues();
         public bool IsValid();
+        public virtual bool Match(Unity.ProjectAuditor.Editor.ProjectIssue issue);
         protected virtual void OnDrawInfo();
         public void Refresh();
         public static void SetReport(Unity.ProjectAuditor.Editor.ProjectReport report);
@@ -192,6 +193,7 @@ namespace Unity.ProjectAuditor.Editor.UI.Framework
         public bool showInfoPanel;
         public bool showMuteOptions;
         public bool showRightPanels;
+        public bool showSeverityFilters;
         public System.Type type;
         public ViewDescriptor() {}
         public static Unity.ProjectAuditor.Editor.UI.Framework.ViewDescriptor[] GetAll();

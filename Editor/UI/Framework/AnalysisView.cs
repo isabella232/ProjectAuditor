@@ -12,7 +12,7 @@ using UnityEngine.Profiling;
 
 namespace Unity.ProjectAuditor.Editor.UI.Framework
 {
-    public class AnalysisView
+    public class AnalysisView : IProjectIssueFilter
     {
         static string s_ExportDirectory = string.Empty;
 
@@ -28,7 +28,7 @@ namespace Unity.ProjectAuditor.Editor.UI.Framework
         protected ProjectAuditorConfig m_Config;
         protected Preferences m_Preferences;
         protected ViewDescriptor m_Desc;
-        protected IProjectIssueFilter m_Filter;
+        protected IProjectIssueFilter m_BaseFilter;
         protected List<ProjectIssue> m_Issues = new List<ProjectIssue>();
         protected ViewManager m_ViewManager;
 
@@ -71,7 +71,7 @@ namespace Unity.ProjectAuditor.Editor.UI.Framework
             m_Desc = descriptor;
             m_Config = config;
             m_Preferences = prefs;
-            m_Filter = filter;
+            m_BaseFilter = filter;
             m_Layout = layout;
 
             if (m_Table != null)
@@ -111,7 +111,7 @@ namespace Unity.ProjectAuditor.Editor.UI.Framework
                 m_Desc,
                 layout,
                 m_Config,
-                m_Filter);
+                this);
 
             if (m_Desc.showDependencyView)
                 m_DependencyView = new DependencyView(new TreeViewState(), m_Desc.onDoubleClick);
@@ -325,7 +325,7 @@ namespace Unity.ProjectAuditor.Editor.UI.Framework
                             Export();
                             return;
                         case ExportMode.Filtered:
-                            Export(issue => { return m_Filter.Match(issue); });
+                            Export(issue => { return Match(issue); });
                             return;
                         case ExportMode.Selected:
                             var selectedItems = table.GetSelectedItems();
@@ -433,6 +433,30 @@ namespace Unity.ProjectAuditor.Editor.UI.Framework
 
                 s_ExportDirectory = Path.GetDirectoryName(path);
             }
+        }
+
+        public bool Match(ProjectIssue issue)
+        {
+            if (m_Desc.showSeverityFilters)
+            {
+                switch (issue.descriptor.severity)
+                {
+                    case Rule.Severity.Info:
+                        if (!m_ShowInfo)
+                            return false;
+                        break;
+                    case Rule.Severity.Warning:
+                        if (!m_ShowWarn)
+                            return false;
+                        break;
+                    case Rule.Severity.Error:
+                        if (!m_ShowError)
+                            return false;
+                        break;
+                }
+            }
+
+            return m_BaseFilter.Match(issue);
         }
 
         public static void SetReport(ProjectReport report)
