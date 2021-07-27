@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Unity.ProjectAuditor.Editor.UI
 {
-    public class CodeView : AnalysisView
+    public class CodeView : DiagnosticView
     {
         public CodeView(ViewManager viewManager) : base(viewManager)
         {

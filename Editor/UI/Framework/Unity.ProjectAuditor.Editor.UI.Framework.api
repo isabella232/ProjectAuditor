@@ -5,11 +5,15 @@ namespace Unity.ProjectAuditor.Editor.UI.Framework
 {
     public class AnalysisView : Unity.ProjectAuditor.Editor.IProjectIssueFilter
     {
+        protected const string k_AnalysisIsRequiredText = <Missing Data: Please Analyze>;
+        protected const string k_MultipleSelectionText = <Multiple selection>;
+        protected const string k_NoSelectionText = <No selection>;
         protected Unity.ProjectAuditor.Editor.IProjectIssueFilter m_BaseFilter;
         protected Unity.ProjectAuditor.Editor.ProjectAuditorConfig m_Config;
         protected Unity.ProjectAuditor.Editor.UI.Framework.ViewDescriptor m_Desc;
         protected System.Collections.Generic.List<Unity.ProjectAuditor.Editor.ProjectIssue> m_Issues;
         protected Unity.ProjectAuditor.Editor.UI.Framework.Preferences m_Preferences;
+        protected Unity.ProjectAuditor.Editor.UI.Framework.IssueTable m_Table;
         protected Unity.ProjectAuditor.Editor.UI.Framework.ViewManager m_ViewManager;
         protected static Unity.ProjectAuditor.Editor.ProjectReport s_Report;
         public Unity.ProjectAuditor.Editor.UI.Framework.ViewDescriptor desc { get; }
@@ -20,6 +24,7 @@ namespace Unity.ProjectAuditor.Editor.UI.Framework
         public virtual void Create(Unity.ProjectAuditor.Editor.UI.Framework.ViewDescriptor descriptor, Unity.ProjectAuditor.Editor.IssueLayout layout, Unity.ProjectAuditor.Editor.ProjectAuditorConfig config, Unity.ProjectAuditor.Editor.UI.Framework.Preferences prefs, Unity.ProjectAuditor.Editor.IProjectIssueFilter filter);
         public virtual void DrawContent();
         public virtual void DrawFilters();
+        public virtual void DrawFoldouts(Unity.ProjectAuditor.Editor.ProblemDescriptor[] selectedDescriptors);
         public void DrawInfo();
         protected Unity.ProjectAuditor.Editor.ProjectIssue[] GetIssues();
         public bool IsValid();
@@ -27,6 +32,12 @@ namespace Unity.ProjectAuditor.Editor.UI.Framework
         protected virtual void OnDrawInfo();
         public void Refresh();
         public static void SetReport(Unity.ProjectAuditor.Editor.ProjectReport report);
+        protected static class LayoutSize
+        {
+            public static readonly int DependencyViewHeight;
+            public static readonly int FoldoutMaxHeight;
+            public static readonly int FoldoutWidth;
+        }
     }
 
     public static class EditorUtil
@@ -36,6 +47,24 @@ namespace Unity.ProjectAuditor.Editor.UI.Framework
         public static void OpenCompilerMessageDescriptor(Unity.ProjectAuditor.Editor.ProblemDescriptor descriptor);
         public static void OpenProjectSettings(Unity.ProjectAuditor.Editor.Utils.Location location);
         public static void OpenTextFile(Unity.ProjectAuditor.Editor.Utils.Location location);
+    }
+
+    public class IssueTable : UnityEditor.IMGUI.Controls.TreeView
+    {
+        public IssueTable(UnityEditor.IMGUI.Controls.TreeViewState state, UnityEditor.IMGUI.Controls.MultiColumnHeader multicolumnHeader, Unity.ProjectAuditor.Editor.UI.Framework.ViewDescriptor desc, Unity.ProjectAuditor.Editor.IssueLayout layout, Unity.ProjectAuditor.Editor.ProjectAuditorConfig config, Unity.ProjectAuditor.Editor.IProjectIssueFilter filter) {}
+        public void AddIssues(Unity.ProjectAuditor.Editor.ProjectIssue[] issues);
+        protected virtual UnityEditor.IMGUI.Controls.TreeViewItem BuildRoot();
+        protected virtual System.Collections.Generic.IList<UnityEditor.IMGUI.Controls.TreeViewItem> BuildRows(UnityEditor.IMGUI.Controls.TreeViewItem root);
+        public void Clear();
+        protected virtual void DoubleClickedItem(int id);
+        protected virtual System.Collections.Generic.IList<int> GetAncestors(int id);
+        protected virtual System.Collections.Generic.IList<int> GetDescendantsThatHaveChildren(int id);
+        public int GetNumMatchingIssues();
+        public Unity.ProjectAuditor.Editor.UI.Framework.IssueTableItem[] GetSelectedItems();
+        protected virtual void RowGUI(UnityEditor.IMGUI.Controls.TreeView.RowGUIArgs args);
+        protected virtual void SearchChanged(string newSearch);
+        public void SetFlatView(bool value);
+        public void SetFontSize(int fontSize);
     }
 
     public class IssueTableItem : UnityEditor.IMGUI.Controls.TreeViewItem

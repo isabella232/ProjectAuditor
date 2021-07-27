@@ -11,7 +11,7 @@ using UnityEngine.Profiling;
 
 namespace Unity.ProjectAuditor.Editor.UI.Framework
 {
-    class IssueTable : TreeView
+    public class IssueTable : TreeView
     {
         static readonly int k_DefaultRowHeight = 18;
         static readonly int k_FirstId = 1;

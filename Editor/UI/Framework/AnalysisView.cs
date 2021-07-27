@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Unity.ProjectAuditor.Editor.UI.Framework;
 using Unity.ProjectAuditor.Editor.CodeAnalysis;
 using Unity.ProjectAuditor.Editor.Utils;
 using UnityEditor;
@@ -30,6 +29,7 @@ namespace Unity.ProjectAuditor.Editor.UI.Framework
         protected ViewDescriptor m_Desc;
         protected IProjectIssueFilter m_BaseFilter;
         protected List<ProjectIssue> m_Issues = new List<ProjectIssue>();
+        protected IssueTable m_Table;
         protected ViewManager m_ViewManager;
 
         DependencyView m_DependencyView;
@@ -40,7 +40,6 @@ namespace Unity.ProjectAuditor.Editor.UI.Framework
 
         GUIContent m_FlatViewToggleContent = Utility.GetIcon("ListView", "Flat View");
         GUIContent m_HelpButtonContent;
-        IssueTable m_Table;
         IssueLayout m_Layout;
 
         public ViewDescriptor desc
@@ -171,6 +170,8 @@ namespace Unity.ProjectAuditor.Editor.UI.Framework
             var selectedIssues = selectedItems.Where(i => i.ProjectIssue != null).Select(i => i.ProjectIssue).ToArray();
             var selectedDescriptors = selectedItems.Select(i => i.ProblemDescriptor).Distinct().ToArray();
 
+            DrawToolbar();
+
             EditorGUILayout.BeginHorizontal();
 
             DrawTable(selectedIssues);
@@ -216,8 +217,6 @@ namespace Unity.ProjectAuditor.Editor.UI.Framework
             EditorGUILayout.BeginVertical();
             EditorGUILayout.Space();
 
-            DrawToolbar();
-
             var r = EditorGUILayout.GetControlRect(GUILayout.ExpandHeight(true));
 
             Profiler.BeginSample("IssueTable.OnGUI");
@@ -245,30 +244,8 @@ namespace Unity.ProjectAuditor.Editor.UI.Framework
             EditorGUILayout.EndHorizontal();
         }
 
-        void DrawFoldouts(ProblemDescriptor[] selectedDescriptors)
+        public virtual void DrawFoldouts(ProblemDescriptor[] selectedDescriptors)
         {
-            EditorGUILayout.BeginVertical(GUILayout.Width(LayoutSize.FoldoutWidth));
-
-            DrawDetailsFoldout(selectedDescriptors);
-            DrawRecommendationFoldout(selectedDescriptors);
-
-            EditorGUILayout.EndVertical();
-        }
-
-        void DrawDetailsFoldout(ProblemDescriptor[] selectedDescriptors)
-        {
-            EditorGUILayout.BeginVertical(GUI.skin.box, GUILayout.Width(LayoutSize.FoldoutWidth));
-            m_Preferences.details = Utility.BoldFoldout(m_Preferences.details, Contents.DetailsFoldout);
-            if (m_Preferences.details)
-            {
-                if (selectedDescriptors.Length == 0)
-                    GUILayout.TextArea(k_NoSelectionText, SharedStyles.TextArea, GUILayout.MaxHeight(LayoutSize.FoldoutMaxHeight));
-                else if (selectedDescriptors.Length > 1)
-                    GUILayout.TextArea(k_MultipleSelectionText, SharedStyles.TextArea, GUILayout.MaxHeight(LayoutSize.FoldoutMaxHeight));
-                else // if (selectedDescriptors.Length == 1)
-                    GUILayout.TextArea(selectedDescriptors[0].problem, SharedStyles.TextArea, GUILayout.MaxHeight(LayoutSize.FoldoutMaxHeight));
-            }
-            EditorGUILayout.EndVertical();
         }
 
         void DrawViewOptions()
@@ -335,22 +312,6 @@ namespace Unity.ProjectAuditor.Editor.UI.Framework
 
                 GUIUtility.ExitGUI();
             }
-        }
-
-        void DrawRecommendationFoldout(ProblemDescriptor[] selectedDescriptors)
-        {
-            EditorGUILayout.BeginVertical(GUI.skin.box, GUILayout.Width(LayoutSize.FoldoutWidth));
-            m_Preferences.recommendation = Utility.BoldFoldout(m_Preferences.recommendation, Contents.RecommendationFoldout);
-            if (m_Preferences.recommendation)
-            {
-                if (selectedDescriptors.Length == 0)
-                    GUILayout.TextArea(k_NoSelectionText, SharedStyles.TextArea, GUILayout.MaxHeight(LayoutSize.FoldoutMaxHeight));
-                else if (selectedDescriptors.Length > 1)
-                    GUILayout.TextArea(k_MultipleSelectionText, SharedStyles.TextArea, GUILayout.MaxHeight(LayoutSize.FoldoutMaxHeight));
-                else // if (selectedDescriptors.Length == 1)
-                    GUILayout.TextArea(selectedDescriptors[0].solution, SharedStyles.TextArea, GUILayout.MaxHeight(LayoutSize.FoldoutMaxHeight));
-            }
-            EditorGUILayout.EndVertical();
         }
 
         void DrawDependencyView(ProjectIssue[] issues)
@@ -451,9 +412,9 @@ namespace Unity.ProjectAuditor.Editor.UI.Framework
             s_Report = report;
         }
 
-        const string k_NoSelectionText = "<No selection>";
-        const string k_AnalysisIsRequiredText = "<Missing Data: Please Analyze>";
-        const string k_MultipleSelectionText = "<Multiple selection>";
+        protected const string k_NoSelectionText = "<No selection>";
+        protected const string k_AnalysisIsRequiredText = "<Missing Data: Please Analyze>";
+        protected const string k_MultipleSelectionText = "<Multiple selection>";
 
         static readonly string[] k_ExportModeStrings =
         {
@@ -462,7 +423,7 @@ namespace Unity.ProjectAuditor.Editor.UI.Framework
             "Selected"
         };
 
-        static class LayoutSize
+        protected static class LayoutSize
         {
             public static readonly int FoldoutWidth = 300;
             public static readonly int FoldoutMaxHeight = 220;
@@ -473,9 +434,6 @@ namespace Unity.ProjectAuditor.Editor.UI.Framework
         {
             public static readonly GUIContent ExportButton = new GUIContent("Export", "Export current view to .csv file");
             public static readonly GUIContent InfoFoldout = new GUIContent("Information");
-            public static readonly GUIContent DetailsFoldout = new GUIContent("Details", "Issue Details");
-            public static readonly GUIContent RecommendationFoldout =
-                new GUIContent("Recommendation", "Recommendation on how to solve the issue");
         }
     }
 }

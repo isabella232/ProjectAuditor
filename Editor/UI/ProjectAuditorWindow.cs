@@ -202,7 +202,6 @@ namespace Unity.ProjectAuditor.Editor.UI
                 if (activeView.IsValid())
                 {
                     DrawFilters();
-                    DrawActions();
 
                     if (m_ShouldRefresh || m_AnalysisState == AnalysisState.Completed)
                     {
@@ -361,6 +360,7 @@ namespace Unity.ProjectAuditor.Editor.UI
             });
             ViewDescriptor.Register(new ViewDescriptor
             {
+                type = typeof(DiagnosticView),
                 category = IssueCategory.ProjectSetting,
                 name = "Settings",
                 menuLabel = "Settings/Diagnostics",
@@ -747,65 +747,6 @@ namespace Unity.ProjectAuditor.Editor.UI
             EditorGUILayout.EndVertical();
         }
 
-        void DrawActions()
-        {
-            if (!activeView.desc.showActions)
-                return;
-
-            var table = activeView.table;
-
-            EditorGUILayout.BeginVertical(GUI.skin.box, GUILayout.ExpandWidth(true));
-
-            m_Preferences.actions = Utility.BoldFoldout(m_Preferences.actions, Contents.ActionsFoldout);
-            if (m_Preferences.actions)
-            {
-                EditorGUI.indentLevel++;
-
-                EditorGUILayout.BeginHorizontal();
-
-                GUI.enabled = activeView.desc.showMuteOptions;
-                EditorGUILayout.LabelField("Selected :", GUILayout.ExpandWidth(true), GUILayout.Width(80));
-
-                if (GUILayout.Button(Contents.MuteButton, GUILayout.ExpandWidth(true), GUILayout.Width(100)))
-                {
-                    var analytic = ProjectAuditorAnalytics.BeginAnalytic();
-                    var selectedItems = table.GetSelectedItems();
-                    foreach (var item in selectedItems)
-                    {
-                        SetRuleForItem(item, Rule.Severity.None);
-                    }
-
-                    if (!m_Preferences.mutedIssues)
-                    {
-                        table.SetSelection(new List<int>());
-                    }
-
-                    ProjectAuditorAnalytics.SendEventWithSelectionSummary(ProjectAuditorAnalytics.UIButton.Mute,
-                        analytic, table.GetSelectedItems());
-                }
-
-                if (GUILayout.Button(Contents.UnmuteButton, GUILayout.ExpandWidth(true), GUILayout.Width(100)))
-                {
-                    var analytic = ProjectAuditorAnalytics.BeginAnalytic();
-                    var selectedItems = table.GetSelectedItems();
-                    foreach (var item in selectedItems)
-                    {
-                        ClearRulesForItem(item);
-                    }
-
-                    ProjectAuditorAnalytics.SendEventWithSelectionSummary(
-                        ProjectAuditorAnalytics.UIButton.Unmute, analytic, table.GetSelectedItems());
-                }
-
-                GUI.enabled = true;
-
-                EditorGUILayout.EndHorizontal();
-
-                EditorGUI.indentLevel--;
-            }
-            EditorGUILayout.EndVertical();
-        }
-
         internal void SetAreaSelection(TreeViewSelection selection)
         {
             m_AreaSelection = selection;
@@ -898,39 +839,6 @@ namespace Unity.ProjectAuditor.Editor.UI
 
             // update assembly selection summary
             m_AssemblySelectionSummary = GetSelectedAssembliesSummary();
-        }
-
-        void SetRuleForItem(IssueTableItem item, Rule.Severity ruleSeverity)
-        {
-            var descriptor = item.ProblemDescriptor;
-
-            var callingMethod = "";
-            Rule rule;
-            if (item.hasChildren)
-            {
-                rule = m_ProjectAuditor.config.GetRule(descriptor);
-            }
-            else
-            {
-                callingMethod = item.ProjectIssue.GetCallingMethod();
-                rule = m_ProjectAuditor.config.GetRule(descriptor, callingMethod);
-            }
-
-            if (rule == null)
-                m_ProjectAuditor.config.AddRule(new Rule
-                {
-                    id = descriptor.id,
-                    filter = callingMethod,
-                    severity = ruleSeverity
-                });
-            else
-                rule.severity = ruleSeverity;
-        }
-
-        void ClearRulesForItem(IssueTableItem item)
-        {
-            m_ProjectAuditor.config.ClearRules(item.ProblemDescriptor,
-                item.hasChildren ? string.Empty : item.ProjectIssue.GetCallingMethod());
         }
 
         void DrawToolbar()
@@ -1114,11 +1022,7 @@ namespace Unity.ProjectAuditor.Editor.UI
             public static readonly GUIContent TextSearchCaseSensitive =
                 new GUIContent("Match Case", "Case-sensitive search");
 
-            public static readonly GUIContent MuteButton = new GUIContent("Mute", "Always ignore selected issues.");
-            public static readonly GUIContent UnmuteButton = new GUIContent("Unmute", "Always show selected issues.");
-
             public static readonly GUIContent FiltersFoldout = new GUIContent("Filters", "Filtering Criteria");
-            public static readonly GUIContent ActionsFoldout = new GUIContent("Actions", "Actions on selected issues");
 
             public static readonly GUIContent HelpText = new GUIContent(
 @"Project Auditor is an experimental static analysis tool for Unity Projects.

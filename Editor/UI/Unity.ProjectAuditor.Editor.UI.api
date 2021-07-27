@@ -3,10 +3,16 @@
 // make sure the XML doc file is present and located next to the scraped dll
 namespace Unity.ProjectAuditor.Editor.UI
 {
-    public class CodeView : Unity.ProjectAuditor.Editor.UI.Framework.AnalysisView
+    public class CodeView : Unity.ProjectAuditor.Editor.UI.DiagnosticView
     {
         public CodeView(Unity.ProjectAuditor.Editor.UI.Framework.ViewManager viewManager) {}
         protected virtual void OnDrawInfo();
+    }
+
+    public class DiagnosticView : Unity.ProjectAuditor.Editor.UI.Framework.AnalysisView
+    {
+        public DiagnosticView(Unity.ProjectAuditor.Editor.UI.Framework.ViewManager viewManager) {}
+        public virtual void DrawFoldouts(Unity.ProjectAuditor.Editor.ProblemDescriptor[] selectedDescriptors);
     }
 
     public class ProjectAuditorWindow : UnityEditor.EditorWindow, Unity.ProjectAuditor.Editor.IProjectIssueFilter, UnityEditor.IHasCustomMenu
