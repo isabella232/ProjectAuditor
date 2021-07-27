@@ -282,14 +282,6 @@ namespace Unity.ProjectAuditor.Editor.UI.Framework
 
             if (m_Desc.groupByDescriptor)
             {
-                // (optional) collapse/expand buttons
-                GUI.enabled = !m_FlatView;
-                if (GUILayout.Button(Contents.CollapseAllButton, EditorStyles.toolbarButton, GUILayout.ExpandWidth(true), GUILayout.Width(100)))
-                    SetRowsExpanded(false);
-                if (GUILayout.Button(Contents.ExpandAllButton, EditorStyles.toolbarButton, GUILayout.ExpandWidth(true), GUILayout.Width(100)))
-                    SetRowsExpanded(true);
-                GUI.enabled = true;
-
                 EditorGUI.BeginChangeCheck();
                 m_FlatView = GUILayout.Toggle(m_FlatView, m_FlatViewToggleContent, EditorStyles.toolbarButton, GUILayout.ExpandWidth(false));
                 if (EditorGUI.EndChangeCheck())
@@ -406,13 +398,6 @@ namespace Unity.ProjectAuditor.Editor.UI.Framework
             EditorGUILayout.EndVertical();
         }
 
-        void SetRowsExpanded(bool expanded)
-        {
-            var rows = m_Table.GetRows();
-            foreach (var row in rows)
-                m_Table.SetExpanded(row.id, expanded);
-        }
-
         void Export(Func<ProjectIssue, bool> match = null)
         {
             var path = EditorUtility.SaveFilePanel("Save to CSV file", s_ExportDirectory, string.Format("project-auditor-{0}.csv", m_Desc.category.ToString()).ToLower(),
@@ -487,9 +472,6 @@ namespace Unity.ProjectAuditor.Editor.UI.Framework
         static class Contents
         {
             public static readonly GUIContent ExportButton = new GUIContent("Export", "Export current view to .csv file");
-            public static readonly GUIContent ExpandAllButton = new GUIContent("Expand All");
-            public static readonly GUIContent CollapseAllButton = new GUIContent("Collapse All");
-
             public static readonly GUIContent InfoFoldout = new GUIContent("Information");
             public static readonly GUIContent DetailsFoldout = new GUIContent("Details", "Issue Details");
             public static readonly GUIContent RecommendationFoldout =

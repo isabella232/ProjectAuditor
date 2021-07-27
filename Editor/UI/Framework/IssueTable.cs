@@ -415,12 +415,25 @@ namespace Unity.ProjectAuditor.Editor.UI.Framework
 
         void ShowContextMenu(Rect cellRect, IssueTableItem item)
         {
-            Event current = Event.current;
+            var current = Event.current;
             if (cellRect.Contains(current.mousePosition) && current.type == EventType.ContextClick)
             {
-                GenericMenu menu = new GenericMenu();
+                var menu = new GenericMenu();
 
                 menu.AddItem(Utility.CopyToClipboard, false, () => CopyToClipboard(item.GetDisplayName()));
+                if (m_Desc.groupByDescriptor && !m_FlatView)
+                {
+                    // (optional) collapse/expand all
+                    menu.AddSeparator("");
+                    menu.AddItem(Utility.ExpandAllButton, false, () =>
+                    {
+                        SetRowsExpanded(true);
+                    });
+                    menu.AddItem(Utility.CollapseAllButton, false, () =>
+                    {
+                        SetRowsExpanded(false);
+                    });
+                }
                 menu.ShowAsContext();
 
                 current.Use();
@@ -430,6 +443,13 @@ namespace Unity.ProjectAuditor.Editor.UI.Framework
         void CopyToClipboard(string text)
         {
             EditorGUIUtility.systemCopyBuffer = text;
+        }
+
+        void SetRowsExpanded(bool expanded)
+        {
+            var rows = GetRows();
+            foreach (var row in rows)
+                SetExpanded(row.id, expanded);
         }
 
         void SortIfNeeded(IList<TreeViewItem> rows)
