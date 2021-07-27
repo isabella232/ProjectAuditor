@@ -422,7 +422,7 @@ namespace Unity.ProjectAuditor.Editor.UI.Framework
             }
         }
 
-        public bool Match(ProjectIssue issue)
+        public virtual bool Match(ProjectIssue issue)
         {
             if (m_Desc.showSeverityFilters)
             {
