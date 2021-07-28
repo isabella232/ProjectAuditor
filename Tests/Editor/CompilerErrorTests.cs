@@ -101,5 +101,25 @@ class ScriptWithError {
             Assert.True(issue.GetCustomProperty(CompilerMessageProperty.Code).Equals(k_ExpectedCode));
             Assert.True(issue.GetCustomProperty(CompilerMessageProperty.Assembly).Equals(AssemblyInfo.DefaultAssemblyName));
         }
+
+        [Test]
+        public void AssemblyCompilationFailureIssueIsReported()
+        {
+            var issues = Utility.Analyze(IssueCategory.Assembly);
+            var issue = issues.FirstOrDefault(i => i.description.Equals("Assembly-CSharp"));
+            Assert.NotNull(issue);
+
+            // check descriptor
+            Assert.Contains(Area.Info, issue.descriptor.GetAreas());
+
+            // check issue
+            Assert.That(issue.category, Is.EqualTo(IssueCategory.Assembly));
+            Assert.That(issue.severity, Is.EqualTo(Rule.Severity.Error));
+
+            // check properties
+            Assert.AreEqual((int)AssemblyProperty.Num, issue.GetNumCustomProperties());
+            Assert.False(issue.GetCustomPropertyAsBool(AssemblyProperty.Result));
+            Assert.False(issue.GetCustomPropertyAsBool(AssemblyProperty.ReadOnly));
+        }
     }
 }
