@@ -6,15 +6,29 @@ namespace Unity.ProjectAuditor.Editor.UI.Framework
 {
     public static class Utility
     {
-        static readonly string k_InfoIconName = "console.infoicon";
-        static readonly string k_WarnIconName = "console.warnicon";
-        static readonly string k_ErrorIconName = "console.erroricon";
+        const string k_Checkmark = "Checkmark";
+        const string k_InfoIconName = "console.infoicon";
+        const string k_WarnIconName = "console.warnicon";
+        const string k_ErrorIconName = "console.erroricon";
 
+        static GUIContent s_Checkmark;
         static GUIContent[] s_StatusWheel;
 
         public static readonly GUIContent CopyToClipboard = new GUIContent("Copy to Clipboard");
         public static readonly GUIContent ExpandAllButton = new GUIContent("Expand All");
         public static readonly GUIContent CollapseAllButton = new GUIContent("Collapse All");
+
+        public static GUIContent CheckmarkIcon
+        {
+            get
+            {
+                if (s_Checkmark != null)
+                    return s_Checkmark;
+
+                s_Checkmark = GetIcon(k_Checkmark);
+                return s_Checkmark;
+            }
+        }
 
         public static GUIContent InfoIcon
         {

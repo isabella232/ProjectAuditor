@@ -318,7 +318,8 @@ namespace Unity.ProjectAuditor.Editor.UI.Framework
                             ulong ulongValue;
                             if (property.format == PropertyFormat.Bool && bool.TryParse(customProperty, out boolValue))
                             {
-                                EditorGUI.Toggle(cellRect, boolValue);
+                                if (boolValue)
+                                    EditorGUI.LabelField(cellRect, Utility.CheckmarkIcon, labelStyle);
                             }
                             else if (property.format == PropertyFormat.Bytes && ulong.TryParse(customProperty, out ulongValue))
                             {
