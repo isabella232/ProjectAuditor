@@ -17,7 +17,8 @@ namespace Unity.ProjectAuditor.Editor.Auditors
 {
     public enum AssemblyProperty
     {
-        ReadOnly = 0,
+        Result = 0,
+        ReadOnly,
         Num
     }
 
@@ -39,8 +40,17 @@ namespace Unity.ProjectAuditor.Editor.Auditors
         static readonly ProblemDescriptor k_AssemblyDescriptor = new ProblemDescriptor
             (
             700001,
-            "Assembly"
+            "Compiled Assembly"
             );
+
+        static readonly ProblemDescriptor k_AssemblyWithErrorsDescriptor = new ProblemDescriptor
+            (
+            700002,
+            "Assembly with errors"
+            )
+        {
+            severity = Rule.Severity.Error
+        };
 
         const int k_CompilerMessageFirstId = 800000;
 
@@ -50,6 +60,7 @@ namespace Unity.ProjectAuditor.Editor.Auditors
             properties = new[]
             {
                 new PropertyDefinition { type = PropertyType.Description, name = "Assembly Name"},
+                new PropertyDefinition { type = PropertyTypeUtil.FromCustom(AssemblyProperty.Result), format = PropertyFormat.Bool, name = "Result", longName = "Compilation Result"},
                 new PropertyDefinition { type = PropertyTypeUtil.FromCustom(AssemblyProperty.ReadOnly), format = PropertyFormat.Bool, name = "Read Only"},
                 new PropertyDefinition { type = PropertyType.Path, name = "asmdef Path"},
             }
@@ -139,19 +150,20 @@ namespace Unity.ProjectAuditor.Editor.Auditors
             };
 
             Profiler.BeginSample("CodeModule.Audit.Compilation");
-            var assemblyInfos = compilationPipeline.Compile(m_Config.AnalyzeEditorCode, progress);
+            var compiledAssemblyInfos = compilationPipeline.Compile(m_Config.AnalyzeEditorCode, progress).ToArray();
             Profiler.EndSample();
 
             var callCrawler = new CallCrawler();
             var issues = new List<ProjectIssue>();
-            var localAssemblyInfos = assemblyInfos.Where(info => !info.readOnly).ToArray();
-            var readOnlyAssemblyInfos = assemblyInfos.Where(info => info.readOnly).ToArray();
+            var localAssemblyInfos = compiledAssemblyInfos.Where(info => !info.readOnly).ToArray();
+            var readOnlyAssemblyInfos = compiledAssemblyInfos.Where(info => info.readOnly).ToArray();
 
-            foreach (var assemblyInfo in assemblyInfos)
+            foreach (var assemblyInfo in compiledAssemblyInfos)
             {
                 onIssueFound(new ProjectIssue(k_AssemblyDescriptor, assemblyInfo.name, IssueCategory.Assembly, assemblyInfo.asmDefPath,
                     new object[(int)AssemblyProperty.Num]
                     {
+                        true, // compilation succeeded
                         assemblyInfo.readOnly
                     }));
             }
@@ -352,6 +364,17 @@ namespace Unity.ProjectAuditor.Editor.Auditors
         void ProcessCompilerMessages(string assemblyName, CompilerMessage[] compilerMessages, Action<ProjectIssue> onIssueFound)
         {
             Profiler.BeginSample("CodeModule.ProcessCompilerMessages");
+
+            if (compilerMessages.Any(m => m.type == CompilerMessageType.Error))
+            {
+                var assemblyInfo = AssemblyInfoProvider.GetAssemblyInfoFromAssemblyName(assemblyName);
+                onIssueFound(new ProjectIssue(k_AssemblyWithErrorsDescriptor, assemblyName, IssueCategory.Assembly, assemblyInfo.asmDefPath,
+                    new object[(int)AssemblyProperty.Num]
+                    {
+                        false, // compilation failed
+                        assemblyInfo.readOnly
+                    }));
+            }
 
             foreach (var message in compilerMessages)
             {

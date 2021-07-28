@@ -108,7 +108,7 @@ namespace Unity.ProjectAuditor.Editor.Utils
             return info;
         }
 
-        static AssemblyInfo GetAssemblyInfoFromAssemblyName(string assemblyName)
+        public static AssemblyInfo GetAssemblyInfoFromAssemblyName(string assemblyName)
         {
             // by default let's assume it's not a package
             var assemblyInfo = new AssemblyInfo
