@@ -15,7 +15,7 @@ namespace Unity.ProjectAuditor.Editor.SettingsAnalyzers
             new List<KeyValuePair<string, string>>();
         List<ProblemDescriptor> m_ProblemDescriptors;
 
-        public void Initialize(IProjectAuditorModule module)
+        public void Initialize(ProjectAuditorModule module)
         {
             var assemblies = AppDomain.CurrentDomain.GetAssemblies();
             m_Assemblies.Add(assemblies.First(a => a.Location.Contains("UnityEngine.dll")));
@@ -45,7 +45,7 @@ namespace Unity.ProjectAuditor.Editor.SettingsAnalyzers
         public IEnumerable<ProjectIssue> Analyze()
         {
             if (m_ProblemDescriptors == null)
-                throw new Exception("Issue Database not initialized.");
+                throw new Exception("Descriptors Database not initialized.");
 
             foreach (var descriptor in m_ProblemDescriptors)
             {
