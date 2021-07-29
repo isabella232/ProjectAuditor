@@ -6,6 +6,7 @@ namespace Unity.ProjectAuditor.Editor.UI
     public class CodeView : Unity.ProjectAuditor.Editor.UI.DiagnosticView
     {
         public CodeView(Unity.ProjectAuditor.Editor.UI.Framework.ViewManager viewManager) {}
+        public virtual void AddIssues(System.Collections.Generic.IEnumerable<Unity.ProjectAuditor.Editor.ProjectIssue> allIssues);
         protected virtual void OnDrawInfo();
     }
 
