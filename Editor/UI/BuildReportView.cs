@@ -12,7 +12,7 @@ namespace Unity.ProjectAuditor.Editor.UI
 {
     class BuildReportView : AnalysisView
     {
-        readonly Draw2D m_2D;
+        const string k_BuildReportNotFound = "Build Report summary not found";
 
         struct GroupStats
         {
@@ -36,7 +36,6 @@ namespace Unity.ProjectAuditor.Editor.UI
         public BuildReportView(ViewManager viewManager) :
             base(viewManager)
         {
-            m_2D = new Draw2D("Unlit/ProjectAuditor");
             m_BuildReportProvider = BuildReportModule.BuildReportProvider;
         }
 
@@ -68,7 +67,7 @@ namespace Unity.ProjectAuditor.Editor.UI
             var report = m_BuildReportProvider.GetBuildReport();
             if (report == null)
             {
-                EditorGUILayout.LabelField("Build Report summary not found");
+                EditorGUILayout.HelpBox(k_BuildReportNotFound, MessageType.Info);
             }
             else
             {

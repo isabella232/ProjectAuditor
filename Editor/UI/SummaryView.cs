@@ -36,7 +36,7 @@ namespace Unity.ProjectAuditor.Editor.UI
                 EditorGUILayout.Space();
             }
 
-            EditorGUILayout.LabelField("Select a View from the toolbar to start browsing the report");
+            EditorGUILayout.HelpBox("Select a View from the toolbar to start browsing the report", MessageType.Info);
         }
 
         public override void DrawContent()

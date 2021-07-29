@@ -12,6 +12,9 @@ namespace Unity.ProjectAuditor.Editor.UI
 {
     public class CodeView : DiagnosticView
     {
+        const string k_InfoText = @"Use the Filters to reduce the number of reported issues
+Use the Mute button to mark an issue as false-positive";
+
         ChartData[] m_GroupByFilename;
         ChartData[] m_GroupByType;
 
@@ -46,8 +49,7 @@ namespace Unity.ProjectAuditor.Editor.UI
 
         protected override void OnDrawInfo()
         {
-            EditorGUILayout.LabelField("- Use the Filters to reduce the number of reported issues");
-            EditorGUILayout.LabelField("- Use the Mute button to mark an issue as false-positive");
+            EditorGUILayout.HelpBox(k_InfoText, MessageType.Info);
 
             if (NumCompilationErrors() > 0)
             {
