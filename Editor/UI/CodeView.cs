@@ -12,20 +12,11 @@ namespace Unity.ProjectAuditor.Editor.UI
 {
     public class CodeView : DiagnosticView
     {
-        readonly Draw2D m_2D;
-
-        struct GroupStats
-        {
-            public string name;
-            public int count;
-        }
-
-        GroupStats[] m_GroupByFilename;
-        GroupStats[] m_GroupByType;
+        ChartData[] m_GroupByFilename;
+        ChartData[] m_GroupByType;
 
         public CodeView(ViewManager viewManager) : base(viewManager)
         {
-            m_2D = new Draw2D("Unlit/ProjectAuditor");
         }
 
         public override void AddIssues(IEnumerable<ProjectIssue> allIssues)
@@ -35,20 +26,20 @@ namespace Unity.ProjectAuditor.Editor.UI
             {
                 var usersIssues = m_Issues.Where(
                     i => !AssemblyInfoProvider.IsReadOnlyAssembly(i.GetCustomProperty(CodeProperty.Assembly)));
-                var list = usersIssues.GroupBy(i => i.filename).Select(g => new GroupStats
+                var list = usersIssues.GroupBy(i => i.filename).Select(g => new ChartData
                 {
-                    name = g.Key,
-                    count = g.Count(),
+                    label = g.Key,
+                    value = g.Count(),
                 }).ToList();
-                list.Sort((a, b) => b.count.CompareTo(a.count));
+                list.Sort((a, b) => b.value.CompareTo(a.value));
                 m_GroupByFilename = list.ToArray();
 
-                list = usersIssues.GroupBy(i => i.GetCallingMethod()).Select(g => new GroupStats
+                list = usersIssues.GroupBy(i => i.GetCallingMethod()).Select(g => new ChartData
                 {
-                    name = g.Key,
-                    count = g.Count(),
+                    label = g.Key,
+                    value = g.Count(),
                 }).ToList();
-                list.Sort((a, b) => b.count.CompareTo(a.count));
+                list.Sort((a, b) => b.value.CompareTo(a.value));
                 m_GroupByType = list.ToArray();
             }
         }
@@ -69,39 +60,8 @@ namespace Unity.ProjectAuditor.Editor.UI
                 EditorGUILayout.EndHorizontal();
             }
 
-            DrawStats("Top user's files with most issues", m_GroupByFilename);
+            DrawBarChart("Top user's files with most issues", new Color(0.0f, 0.6f, 0.6f), m_GroupByFilename);
             //DrawStats("Top types with most issues", m_GroupByType);
-        }
-
-        void DrawStats(string title, GroupStats[] stats)
-        {
-            EditorGUILayout.LabelField(title, EditorStyles.boldLabel);
-            EditorGUI.indentLevel++;
-            EditorGUILayout.BeginVertical();
-
-            var width = 180;
-            var barColor = new Color(0.0f, 0.6f, 0.6f);
-
-            var maxGroupSize = (float)stats.Max(g => g.count);
-            const int kMaxGroups = 10;
-            for (int i = 0; i < stats.Length && i < kMaxGroups; i++)
-            {
-                var group = stats[i];
-                var groupSize = group.count;
-                EditorGUILayout.BeginHorizontal();
-
-                EditorGUILayout.LabelField(string.Format("{0} ({1}):", group.name, group.count), GUILayout.Width(300));
-
-                var rect = EditorGUILayout.GetControlRect(GUILayout.Width(width));
-                if (m_2D.DrawStart(rect))
-                {
-                    m_2D.DrawFilledBox(0, 1, Math.Max(1, rect.width * groupSize / maxGroupSize), rect.height - 1, barColor);
-                    m_2D.DrawEnd();
-                }
-                EditorGUILayout.EndHorizontal();
-            }
-            EditorGUILayout.EndVertical();
-            EditorGUI.indentLevel--;
         }
 
         static int NumCompilationErrors()

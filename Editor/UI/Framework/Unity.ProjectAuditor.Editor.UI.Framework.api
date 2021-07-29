@@ -37,6 +37,7 @@ namespace Unity.ProjectAuditor.Editor.UI.Framework
         protected const string k_AnalysisIsRequiredText = <Missing Data: Please Analyze>;
         protected const string k_MultipleSelectionText = <Multiple selection>;
         protected const string k_NoSelectionText = <No selection>;
+        protected Unity.ProjectAuditor.Editor.UI.Draw2D m_2D;
         protected Unity.ProjectAuditor.Editor.IProjectIssueFilter m_BaseFilter;
         protected Unity.ProjectAuditor.Editor.ProjectAuditorConfig m_Config;
         protected Unity.ProjectAuditor.Editor.UI.Framework.ViewDescriptor m_Desc;
@@ -51,6 +52,7 @@ namespace Unity.ProjectAuditor.Editor.UI.Framework
         public virtual void AddIssues(System.Collections.Generic.IEnumerable<Unity.ProjectAuditor.Editor.ProjectIssue> allIssues);
         public virtual void Clear();
         public virtual void Create(Unity.ProjectAuditor.Editor.UI.Framework.ViewDescriptor descriptor, Unity.ProjectAuditor.Editor.IssueLayout layout, Unity.ProjectAuditor.Editor.ProjectAuditorConfig config, Unity.ProjectAuditor.Editor.UI.Framework.Preferences prefs, Unity.ProjectAuditor.Editor.IProjectIssueFilter filter);
+        protected void DrawBarChart(string title, UnityEngine.Color barColor, Unity.ProjectAuditor.Editor.UI.Framework.ChartData[] stats, int kMaxGroups = 10);
         public virtual void DrawContent();
         public virtual void DrawFilters();
         public virtual void DrawFoldouts(Unity.ProjectAuditor.Editor.ProblemDescriptor[] selectedDescriptors);
@@ -67,6 +69,12 @@ namespace Unity.ProjectAuditor.Editor.UI.Framework
             public static readonly int FoldoutMaxHeight;
             public static readonly int FoldoutWidth;
         }
+    }
+
+    public struct ChartData
+    {
+        public string label;
+        public int value;
     }
 
     public static class EditorUtil

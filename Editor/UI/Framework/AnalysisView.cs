@@ -11,6 +11,12 @@ using UnityEngine.Profiling;
 
 namespace Unity.ProjectAuditor.Editor.UI.Framework
 {
+    public struct ChartData
+    {
+        public string label;
+        public int value;
+    }
+
     public class AnalysisView : IProjectIssueFilter
     {
         static string s_ExportDirectory = string.Empty;
@@ -24,6 +30,7 @@ namespace Unity.ProjectAuditor.Editor.UI.Framework
             Selected
         }
 
+        protected Draw2D m_2D;
         protected ProjectAuditorConfig m_Config;
         protected Preferences m_Preferences;
         protected ViewDescriptor m_Desc;
@@ -62,6 +69,7 @@ namespace Unity.ProjectAuditor.Editor.UI.Framework
 
         public AnalysisView(ViewManager viewManager)
         {
+            m_2D = new Draw2D("Unlit/ProjectAuditor");
             m_ShowInfo = m_ShowWarn = m_ShowError = true;
 
             m_ViewManager = viewManager;
@@ -357,6 +365,34 @@ namespace Unity.ProjectAuditor.Editor.UI.Framework
             }
 
             EditorGUILayout.EndVertical();
+        }
+
+        protected void DrawBarChart(string title, Color barColor, ChartData[] stats, int kMaxGroups = 10)
+        {
+            EditorGUILayout.LabelField(title, EditorStyles.boldLabel);
+            EditorGUI.indentLevel++;
+            EditorGUILayout.BeginVertical();
+
+            var width = 180;
+            var maxGroupSize = (float)stats.Max(g => g.value);
+            for (int i = 0; i < stats.Length && i < kMaxGroups; i++)
+            {
+                var group = stats[i];
+                var groupSize = group.value;
+                EditorGUILayout.BeginHorizontal();
+
+                EditorGUILayout.LabelField(string.Format("{0} ({1}):", group.label, group.value), GUILayout.Width(300));
+
+                var rect = EditorGUILayout.GetControlRect(GUILayout.Width(width));
+                if (m_2D.DrawStart(rect))
+                {
+                    m_2D.DrawFilledBox(0, 1, Math.Max(1, rect.width * groupSize / maxGroupSize), rect.height - 1, barColor);
+                    m_2D.DrawEnd();
+                }
+                EditorGUILayout.EndHorizontal();
+            }
+            EditorGUILayout.EndVertical();
+            EditorGUI.indentLevel--;
         }
 
         void Export(Func<ProjectIssue, bool> match = null)
