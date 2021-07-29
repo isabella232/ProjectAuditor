@@ -17,7 +17,6 @@ namespace Unity.ProjectAuditor.Editor.UI.Framework
         public int value;
     }
 
-    [Serializable]
     public class AnalysisView : IProjectIssueFilter
     {
         static string s_ExportDirectory = string.Empty;
