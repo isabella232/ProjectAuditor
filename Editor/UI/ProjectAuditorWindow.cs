@@ -52,9 +52,7 @@ namespace Unity.ProjectAuditor.Editor.UI
         [SerializeField] string m_AreaSelectionSummary;
         [SerializeField] string[] m_AssemblyNames;
         [SerializeField] string m_AssemblySelectionSummary;
-        [SerializeField] bool m_DeveloperMode;
         [SerializeField] ProjectReport m_ProjectReport;
-        [SerializeField] TextFilter m_TextFilter;
         [SerializeField] AnalysisState m_AnalysisState = AnalysisState.Initializing;
         [SerializeField] Preferences m_Preferences = new Preferences();
         [SerializeField] ViewManager m_ViewManager;
@@ -66,8 +64,8 @@ namespace Unity.ProjectAuditor.Editor.UI
 
         public void AddItemsToMenu(GenericMenu menu)
         {
-            menu.AddItem(Contents.DeveloperMode, m_DeveloperMode, OnToggleDeveloperMode);
-            menu.AddItem(Contents.UserMode, !m_DeveloperMode, OnToggleDeveloperMode);
+            menu.AddItem(Contents.DeveloperMode, m_Preferences.developerMode, OnToggleDeveloperMode);
+            menu.AddItem(Contents.UserMode, !m_Preferences.developerMode, OnToggleDeveloperMode);
         }
 
         public bool Match(ProjectIssue issue)
@@ -110,7 +108,7 @@ namespace Unity.ProjectAuditor.Editor.UI
                 !issue.isPerfCriticalContext)
                 return false;
 
-            return m_TextFilter.Match(issue);
+            return true;
         }
 
         void OnEnable()
@@ -126,9 +124,6 @@ namespace Unity.ProjectAuditor.Editor.UI
             UpdateAreaSelection();
             UpdateAssemblySelection();
             Profiler.EndSample();
-
-            if (m_TextFilter == null)
-                m_TextFilter = new TextFilter();
 
             var viewDescriptors = ViewDescriptor.GetAll();
             Array.Sort(viewDescriptors, (a, b) => a.menuOrder.CompareTo(b.menuOrder));
@@ -418,7 +413,7 @@ namespace Unity.ProjectAuditor.Editor.UI
 
         void OnToggleDeveloperMode()
         {
-            m_DeveloperMode = !m_DeveloperMode;
+            m_Preferences.developerMode = !m_Preferences.developerMode;
         }
 
         bool IsAnalysisValid()
@@ -679,25 +674,7 @@ namespace Unity.ProjectAuditor.Editor.UI
 
                 EditorGUI.BeginChangeCheck();
 
-                EditorGUILayout.BeginHorizontal();
-
-                EditorGUILayout.LabelField(Contents.TextSearchLabel, GUILayout.Width(80));
-
-                m_TextFilter.searchText = EditorGUILayout.DelayedTextField(m_TextFilter.searchText, GUILayout.Width(180));
-                activeView.table.searchString = m_TextFilter.searchText;
-
-                m_TextFilter.matchCase = EditorGUILayout.ToggleLeft(Contents.TextSearchCaseSensitive, m_TextFilter.matchCase, GUILayout.Width(160));
-
-                if (m_DeveloperMode)
-                {
-                    // this is only available in developer mode because it is still too slow at the moment
-                    GUI.enabled = activeView.desc.showDependencyView;
-                    m_TextFilter.searchDependencies = EditorGUILayout.ToggleLeft("Call Tree (slow)",
-                        m_TextFilter.searchDependencies, GUILayout.Width(160));
-                    GUI.enabled = true;
-                }
-
-                EditorGUILayout.EndHorizontal();
+                activeView.DrawTextSearch();
 
                 if (activeView.desc.showCritical || activeView.desc.showMuteOptions)
                 {
@@ -898,7 +875,7 @@ namespace Unity.ProjectAuditor.Editor.UI
 
         void DrawSettings()
         {
-            if (m_DeveloperMode)
+            if (m_Preferences.developerMode)
             {
                 EditorGUILayout.BeginHorizontal();
                 EditorGUILayout.LabelField("Build :", GUILayout.ExpandWidth(true), GUILayout.Width(80));
@@ -1015,12 +992,6 @@ namespace Unity.ProjectAuditor.Editor.UI
 
             public static readonly GUIContent AreaFilterSelect =
                 new GUIContent("Select", "Select performance areas to display");
-
-            public static readonly GUIContent TextSearchLabel =
-                new GUIContent("Search : ", "Text search options");
-
-            public static readonly GUIContent TextSearchCaseSensitive =
-                new GUIContent("Match Case", "Case-sensitive search");
 
             public static readonly GUIContent FiltersFoldout = new GUIContent("Filters", "Filtering Criteria");
 

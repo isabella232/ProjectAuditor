@@ -17,6 +17,7 @@ namespace Unity.ProjectAuditor.Editor.UI.Framework
         public int value;
     }
 
+    [Serializable]
     public class AnalysisView : IProjectIssueFilter
     {
         static string s_ExportDirectory = string.Empty;
@@ -37,6 +38,7 @@ namespace Unity.ProjectAuditor.Editor.UI.Framework
         protected IProjectIssueFilter m_BaseFilter;
         protected List<ProjectIssue> m_Issues = new List<ProjectIssue>();
         protected IssueTable m_Table;
+        protected TextFilter m_TextFilter;
         protected ViewManager m_ViewManager;
 
         DependencyView m_DependencyView;
@@ -124,6 +126,9 @@ namespace Unity.ProjectAuditor.Editor.UI.Framework
 
             if (m_Desc.showDependencyView)
                 m_DependencyView = new DependencyView(new TreeViewState(), m_Desc.onDoubleClick);
+
+            if (m_TextFilter == null)
+                m_TextFilter = new TextFilter();
 
             var helpButtonTooltip = string.Format("Open Reference for {0}", m_Desc.name);
 #if UNITY_2018_1_OR_NEWER
@@ -235,6 +240,29 @@ namespace Unity.ProjectAuditor.Editor.UI.Framework
             EditorGUILayout.LabelField(info, GUILayout.ExpandWidth(true), GUILayout.Width(200));
 
             EditorGUILayout.EndVertical();
+        }
+
+        public virtual void DrawTextSearch()
+        {
+            EditorGUILayout.BeginHorizontal();
+
+            EditorGUILayout.LabelField(Contents.TextSearchLabel, GUILayout.Width(80));
+
+            m_TextFilter.searchText = EditorGUILayout.DelayedTextField(m_TextFilter.searchText, GUILayout.Width(180));
+            m_TextFilter.matchCase = EditorGUILayout.ToggleLeft(Contents.TextSearchCaseSensitive, m_TextFilter.matchCase, GUILayout.Width(160));
+
+            m_Table.searchString = m_TextFilter.searchText;
+
+            if (m_Preferences.developerMode)
+            {
+                // this is only available in developer mode because it is still too slow at the moment
+                GUI.enabled = m_Desc.showDependencyView;
+                m_TextFilter.searchDependencies = EditorGUILayout.ToggleLeft("Call Tree (slow)",
+                    m_TextFilter.searchDependencies, GUILayout.Width(160));
+                GUI.enabled = true;
+            }
+
+            EditorGUILayout.EndHorizontal();
         }
 
         void DrawToolbar()
@@ -440,7 +468,7 @@ namespace Unity.ProjectAuditor.Editor.UI.Framework
                 }
             }
 
-            return m_BaseFilter.Match(issue);
+            return m_BaseFilter.Match(issue) && m_TextFilter.Match(issue);
         }
 
         public static void SetReport(ProjectReport report)
@@ -470,6 +498,8 @@ namespace Unity.ProjectAuditor.Editor.UI.Framework
         {
             public static readonly GUIContent ExportButton = new GUIContent("Export", "Export current view to .csv file");
             public static readonly GUIContent InfoFoldout = new GUIContent("Information");
+            public static readonly GUIContent TextSearchLabel = new GUIContent("Search : ", "Text search options");
+            public static readonly GUIContent TextSearchCaseSensitive = new GUIContent("Match Case", "Case-sensitive search");
         }
     }
 }
