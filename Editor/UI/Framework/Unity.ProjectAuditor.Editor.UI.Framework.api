@@ -91,6 +91,7 @@ namespace Unity.ProjectAuditor.Editor.UI.Framework
 
     public class IssueTable : UnityEditor.IMGUI.Controls.TreeView
     {
+        public bool flatView { get; set; }
         public IssueTable(UnityEditor.IMGUI.Controls.TreeViewState state, UnityEditor.IMGUI.Controls.MultiColumnHeader multicolumnHeader, Unity.ProjectAuditor.Editor.UI.Framework.ViewDescriptor desc, Unity.ProjectAuditor.Editor.IssueLayout layout, Unity.ProjectAuditor.Editor.ProjectAuditorConfig config, Unity.ProjectAuditor.Editor.IProjectIssueFilter filter) {}
         public void AddIssues(Unity.ProjectAuditor.Editor.ProjectIssue[] issues);
         protected virtual UnityEditor.IMGUI.Controls.TreeViewItem BuildRoot();
@@ -103,7 +104,6 @@ namespace Unity.ProjectAuditor.Editor.UI.Framework
         public Unity.ProjectAuditor.Editor.UI.Framework.IssueTableItem[] GetSelectedItems();
         protected virtual void RowGUI(UnityEditor.IMGUI.Controls.TreeView.RowGUIArgs args);
         protected virtual void SearchChanged(string newSearch);
-        public void SetFlatView(bool value);
         public void SetFontSize(int fontSize);
     }
 
@@ -159,7 +159,6 @@ namespace Unity.ProjectAuditor.Editor.UI.Framework
         public bool dependencies;
         public bool details;
         public bool developerMode;
-        public bool emptyGroups;
         public bool filters;
         public int fontSize;
         public bool info;

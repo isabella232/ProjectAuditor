@@ -135,8 +135,6 @@ namespace Unity.ProjectAuditor.Editor.UI.Framework
 #else
             m_HelpButtonContent = new GUIContent("?", helpButtonTooltip);
 #endif
-
-            SetFlatView(m_FlatView);
         }
 
         public virtual void AddIssues(IEnumerable<ProjectIssue> allIssues)
@@ -165,11 +163,6 @@ namespace Unity.ProjectAuditor.Editor.UI.Framework
         public bool IsValid()
         {
             return m_Table != null;
-        }
-
-        void SetFlatView(bool value)
-        {
-            m_Table.SetFlatView(value);
         }
 
         public virtual void DrawFilters()
@@ -248,7 +241,7 @@ namespace Unity.ProjectAuditor.Editor.UI.Framework
             EditorGUILayout.LabelField(Contents.TextSearchLabel, GUILayout.Width(80));
 
             m_TextFilter.searchText = EditorGUILayout.DelayedTextField(m_TextFilter.searchText, GUILayout.Width(180));
-            m_TextFilter.matchCase = EditorGUILayout.ToggleLeft(Contents.TextSearchCaseSensitive, m_TextFilter.matchCase, GUILayout.Width(160));
+            m_TextFilter.ignoreCase = !EditorGUILayout.ToggleLeft(Contents.TextSearchCaseSensitive, !m_TextFilter.ignoreCase, GUILayout.Width(160));
 
             m_Table.searchString = m_TextFilter.searchText;
 
@@ -294,10 +287,9 @@ namespace Unity.ProjectAuditor.Editor.UI.Framework
 
             GUI.enabled = m_Desc.groupByDescriptor;
             EditorGUI.BeginChangeCheck();
-            m_FlatView = GUILayout.Toggle(m_FlatView, m_FlatViewToggleContent, EditorStyles.toolbarButton, GUILayout.ExpandWidth(false));
+            m_Table.flatView = GUILayout.Toggle(m_Table.flatView, m_FlatViewToggleContent, EditorStyles.toolbarButton, GUILayout.ExpandWidth(false));
             if (EditorGUI.EndChangeCheck())
             {
-                SetFlatView(m_FlatView);
                 Refresh();
             }
 
@@ -331,7 +323,7 @@ namespace Unity.ProjectAuditor.Editor.UI.Framework
                             Export();
                             return;
                         case ExportMode.Filtered:
-                            Export(issue => { return Match(issue); });
+                            Export(issue => { return m_BaseFilter.Match(issue); });
                             return;
                         case ExportMode.Selected:
                             var selectedItems = table.GetSelectedItems();
@@ -472,8 +464,10 @@ namespace Unity.ProjectAuditor.Editor.UI.Framework
 
         internal virtual void OnEnable()
         {
-            m_FlatView = EditorPrefs.GetBool(GetPrefKey(k_FlatModeKey));
-            SetFlatView(m_FlatView);
+            m_Table.flatView = EditorPrefs.GetBool(GetPrefKey(k_FlatModeKey));
+            m_TextFilter.searchDependencies = EditorPrefs.GetBool(GetPrefKey(k_SearchDepsKey));
+            m_TextFilter.ignoreCase = EditorPrefs.GetBool(GetPrefKey(k_SearchIgnoreCaseKey));
+            m_TextFilter.searchText = EditorPrefs.GetString(GetPrefKey(k_SearchStringKey));
             m_ShowInfo = EditorPrefs.GetBool(GetPrefKey(k_ShowInfoKey), true);
             m_ShowWarn = EditorPrefs.GetBool(GetPrefKey(k_ShowWarnKey), true);
             m_ShowError = EditorPrefs.GetBool(GetPrefKey(k_ShowErrorKey), true);
@@ -481,7 +475,10 @@ namespace Unity.ProjectAuditor.Editor.UI.Framework
 
         internal virtual void SaveSettings()
         {
-            EditorPrefs.SetBool(GetPrefKey(k_FlatModeKey), m_FlatView);
+            EditorPrefs.SetBool(GetPrefKey(k_FlatModeKey), m_Table.flatView);
+            EditorPrefs.SetBool(GetPrefKey(k_SearchDepsKey), m_TextFilter.searchDependencies);
+            EditorPrefs.SetBool(GetPrefKey(k_SearchIgnoreCaseKey), m_TextFilter.ignoreCase);
+            EditorPrefs.SetString(GetPrefKey(k_SearchStringKey), m_TextFilter.searchText);
             EditorPrefs.SetBool(GetPrefKey(k_ShowInfoKey), m_ShowInfo);
             EditorPrefs.SetBool(GetPrefKey(k_ShowWarnKey), m_ShowWarn);
             EditorPrefs.SetBool(GetPrefKey(k_ShowErrorKey), m_ShowError);
@@ -500,6 +497,9 @@ namespace Unity.ProjectAuditor.Editor.UI.Framework
         // pref keys
         const string k_PrefKeyPrefix = "ProjectAuditor.AnalysisView.";
         const string k_FlatModeKey = "FlatMode";
+        const string k_SearchDepsKey = "SearchDeps";
+        const string k_SearchIgnoreCaseKey = "SearchIgnoreCase";
+        const string k_SearchStringKey = "SearchString";
         const string k_ShowInfoKey = "ShowInfo";
         const string k_ShowWarnKey = "ShowWarning";
         const string k_ShowErrorKey = "ShowError";

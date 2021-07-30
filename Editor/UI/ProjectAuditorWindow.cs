@@ -65,7 +65,6 @@ namespace Unity.ProjectAuditor.Editor.UI
         public void AddItemsToMenu(GenericMenu menu)
         {
             menu.AddItem(Contents.DeveloperMode, m_Preferences.developerMode, OnToggleDeveloperMode);
-            menu.AddItem(Contents.UserMode, !m_Preferences.developerMode, OnToggleDeveloperMode);
         }
 
         public bool Match(ProjectIssue issue)
@@ -888,8 +887,6 @@ namespace Unity.ProjectAuditor.Editor.UI
                     m_ProjectAuditor.config.AnalyzeOnBuild, GUILayout.Width(100));
                 m_ProjectAuditor.config.FailBuildOnIssues = EditorGUILayout.ToggleLeft("Fail on Issues",
                     m_ProjectAuditor.config.FailBuildOnIssues, GUILayout.Width(100));
-                m_Preferences.emptyGroups = EditorGUILayout.ToggleLeft("Show Empty Groups",
-                    m_Preferences.emptyGroups, GUILayout.Width(100));
                 EditorGUILayout.EndHorizontal();
             }
         }
@@ -965,7 +962,6 @@ namespace Unity.ProjectAuditor.Editor.UI
         static class Contents
         {
             public static readonly GUIContent DeveloperMode = new GUIContent("Developer Mode");
-            public static readonly GUIContent UserMode = new GUIContent("User Mode");
 
             public static readonly GUIContent WindowTitle = new GUIContent("Project Auditor");
 
@@ -997,7 +993,6 @@ namespace Unity.ProjectAuditor.Editor.UI
 
             public static readonly GUIContent AreaFilterSelect =
                 new GUIContent("Select", "Select performance areas to display");
-
             public static readonly GUIContent FiltersFoldout = new GUIContent("Filters", "Filtering Criteria");
 
             public static readonly GUIContent HelpText = new GUIContent(

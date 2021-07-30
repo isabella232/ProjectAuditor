@@ -2,6 +2,9 @@ using System;
 
 namespace Unity.ProjectAuditor.Editor.UI.Framework
 {
+    /// <summary>
+    /// Global UI preferences
+    /// </summary>
     [Serializable]
     public class Preferences
     {
@@ -16,10 +19,9 @@ namespace Unity.ProjectAuditor.Editor.UI.Framework
         public bool details = true;
         public bool recommendation = true;
 
-        // issues preferences
+        // diagnostic preferences
         public bool onlyCriticalIssues;
         public bool mutedIssues;
-        public bool emptyGroups;
 
         public int fontSize = k_MinFontSize;
 
