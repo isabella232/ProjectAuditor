@@ -60,6 +60,7 @@ namespace Unity.ProjectAuditor.Editor.UI.Framework
         public void DrawInfo();
         public virtual void DrawTextSearch();
         protected Unity.ProjectAuditor.Editor.ProjectIssue[] GetIssues();
+        protected string GetPrefKey(string key);
         public bool IsValid();
         public virtual bool Match(Unity.ProjectAuditor.Editor.ProjectIssue issue);
         protected virtual void OnDrawInfo();
