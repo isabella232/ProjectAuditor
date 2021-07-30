@@ -474,11 +474,17 @@ namespace Unity.ProjectAuditor.Editor.UI.Framework
         {
             m_FlatView = EditorPrefs.GetBool(GetPrefKey(k_FlatModeKey));
             SetFlatView(m_FlatView);
+            m_ShowInfo = EditorPrefs.GetBool(GetPrefKey(k_ShowInfoKey), true);
+            m_ShowWarn = EditorPrefs.GetBool(GetPrefKey(k_ShowWarnKey), true);
+            m_ShowError = EditorPrefs.GetBool(GetPrefKey(k_ShowErrorKey), true);
         }
 
         internal virtual void SaveSettings()
         {
             EditorPrefs.SetBool(GetPrefKey(k_FlatModeKey), m_FlatView);
+            EditorPrefs.SetBool(GetPrefKey(k_ShowInfoKey), m_ShowInfo);
+            EditorPrefs.SetBool(GetPrefKey(k_ShowWarnKey), m_ShowWarn);
+            EditorPrefs.SetBool(GetPrefKey(k_ShowErrorKey), m_ShowError);
         }
 
         protected string GetPrefKey(string key)
@@ -494,6 +500,9 @@ namespace Unity.ProjectAuditor.Editor.UI.Framework
         // pref keys
         const string k_PrefKeyPrefix = "ProjectAuditor.AnalysisView.";
         const string k_FlatModeKey = "FlatMode";
+        const string k_ShowInfoKey = "ShowInfo";
+        const string k_ShowWarnKey = "ShowWarning";
+        const string k_ShowErrorKey = "ShowError";
 
         // UI strings
         protected const string k_NoSelectionText = "<No selection>";
