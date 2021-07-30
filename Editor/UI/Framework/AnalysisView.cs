@@ -470,6 +470,10 @@ namespace Unity.ProjectAuditor.Editor.UI.Framework
             return m_BaseFilter.Match(issue) && m_TextFilter.Match(issue);
         }
 
+        internal virtual void SaveSettings()
+        {
+        }
+
         public static void SetReport(ProjectReport report)
         {
             s_Report = report;
