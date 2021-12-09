@@ -261,8 +261,6 @@ namespace Unity.ProjectAuditor.Editor.Utils
 
                 // add asmdef-specific defines
                 var additionalDefines = new List<string>(assembly.defines.Except(assemblyBuilder.defaultDefines));
-
-                additionalDefines.Add("ENABLE_UNITY_COLLECTIONS_CHECKS");
                 assemblyBuilder.additionalDefines = additionalDefines.ToArray();
 
                 // add references to target assemblies
