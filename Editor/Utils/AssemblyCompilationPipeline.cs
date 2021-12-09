@@ -297,48 +297,56 @@ namespace Unity.ProjectAuditor.Editor.Utils
             }
         }
 
-        static CompilerMessage ParseCompilerMessage(UnityEditor.Compilation.CompilerMessage originalMessage)
+        internal static CompilerMessage ParseCompilerMessage(UnityEditor.Compilation.CompilerMessage originalMessage)
         {
+            var messageBody = originalMessage.message; // as a fallback, use the original message
+            var messageCode = "Unknown";
+            var messageType = CompilerMessageType.Error;
+
+            // try parsing the message
             var messageStartIndex = originalMessage.message.LastIndexOf("):");
-            if (messageStartIndex == -1)
-                return null;
+            if (messageStartIndex != -1)
+            {
+                var messageWithCode = originalMessage.message.Substring(messageStartIndex + 2);
+                var messageParts = messageWithCode.Split(new[] {' ', ':'}, 2,
+                    StringSplitOptions.RemoveEmptyEntries);
+                if (messageParts.Length > 1)
+                {
+                    // if possible we read the compiler message type from the message because CompilerMessageType does not support CompilerMessageType.Info in 2020.x
+                    switch (messageParts[0])
+                    {
+                        case "error":
+                            messageType = CompilerMessageType.Error;
+                            break;
+                        case "warning":
+                            messageType = CompilerMessageType.Warning;
+                            break;
+                        case "info":
+                            messageType = CompilerMessageType.Info;
+                            break;
+                    }
 
-            var messageWithCode = originalMessage.message.Substring(messageStartIndex + 2);
-            var messageParts = messageWithCode.Split(new[] {' ', ':'}, 2,
-                StringSplitOptions.RemoveEmptyEntries);
-            if (messageParts.Length < 2)
-                return null;
+                    if (messageParts.Length > 1 && messageParts[1].IndexOf(':') != -1)
+                    {
+                        messageParts = messageParts[1].Split(new[] {' ', ':'}, 2,
+                            StringSplitOptions.RemoveEmptyEntries);
+                        if (messageParts.Length > 1)
+                        {
+                            messageBody = messageParts[1];
+                            messageCode = messageParts[0];
+                        }
+                    }
+                }
+            }
 
-            var messageType = messageParts[0];
-            if (messageParts[1].IndexOf(':') == -1)
-                return null;
-
-            messageParts = messageParts[1].Split(':');
-            if (messageParts.Length < 2)
-                return null;
-
-            var messageBody = messageWithCode.Substring(messageWithCode.IndexOf(": ") + 2);
             var message = new CompilerMessage
             {
                 message = messageBody,
                 file = originalMessage.file,
                 line = originalMessage.line,
-                code = messageParts[0]
+                code = messageCode,
+                type = messageType
             };
-
-            // disregard originalMessages[i].type because it does not support CompilerMessageType.Info in 2020.x
-            switch (messageType)
-            {
-                case "error":
-                    message.type = CompilerMessageType.Error;
-                    break;
-                case "warning":
-                    message.type = CompilerMessageType.Warning;
-                    break;
-                case "info":
-                    message.type = CompilerMessageType.Info;
-                    break;
-            }
 
             return message;
         }
