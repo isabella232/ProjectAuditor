@@ -35,7 +35,7 @@ namespace Unity.ProjectAuditor.Editor.Utils
         Info
     }
 
-    struct CompilerMessage
+    class CompilerMessage
     {
         /// <summary>
         ///   <para>Message code.</para>
@@ -240,46 +240,7 @@ namespace Unity.ProjectAuditor.Editor.Utils
                     var messages = new CompilerMessage[originalMessages.Length];
                     for (int i = 0; i < originalMessages.Length; i++)
                     {
-                        var messageStartIndex = originalMessages[i].message.LastIndexOf("):");
-                        if (messageStartIndex != -1)
-                        {
-                            var messageWithCode = originalMessages[i].message.Substring(messageStartIndex + 2);
-                            var messageParts = messageWithCode.Split(new[] {' ', ':'}, 2,
-                                StringSplitOptions.RemoveEmptyEntries);
-                            if (messageParts.Length < 2)
-                                continue;
-
-                            var messageType = messageParts[0];
-                            if (messageParts[1].IndexOf(':') == -1)
-                                continue;
-
-                            messageParts = messageParts[1].Split(':');
-                            if (messageParts.Length < 2)
-                                continue;
-
-                            var messageBody = messageWithCode.Substring(messageWithCode.IndexOf(": ") + 2);
-                            messages[i] = new CompilerMessage
-                            {
-                                message = messageBody,
-                                file = originalMessages[i].file,
-                                line = originalMessages[i].line,
-                                code = messageParts[0]
-                            };
-
-                            // disregard originalMessages[i].type because it does not support CompilerMessageType.Info in 2020.x
-                            switch (messageType)
-                            {
-                                case "error":
-                                    messages[i].type = CompilerMessageType.Error;
-                                    break;
-                                case "warning":
-                                    messages[i].type = CompilerMessageType.Warning;
-                                    break;
-                                case "info":
-                                    messages[i].type = CompilerMessageType.Info;
-                                    break;
-                            }
-                        }
+                        messages[i] = ParseCompilerMessage(originalMessages[i]);
                     }
 
                     assemblyCompilationFinished(path, messages);
@@ -334,6 +295,52 @@ namespace Unity.ProjectAuditor.Editor.Utils
                 m_AssemblyCompilationUnits[Path.GetFileName(assembly.name)].dependencies =
                     dependencies.ToArray();
             }
+        }
+
+        static CompilerMessage ParseCompilerMessage(UnityEditor.Compilation.CompilerMessage originalMessage)
+        {
+            var messageStartIndex = originalMessage.message.LastIndexOf("):");
+            if (messageStartIndex == -1)
+                return null;
+
+            var messageWithCode = originalMessage.message.Substring(messageStartIndex + 2);
+            var messageParts = messageWithCode.Split(new[] {' ', ':'}, 2,
+                StringSplitOptions.RemoveEmptyEntries);
+            if (messageParts.Length < 2)
+                return null;
+
+            var messageType = messageParts[0];
+            if (messageParts[1].IndexOf(':') == -1)
+                return null;
+
+            messageParts = messageParts[1].Split(':');
+            if (messageParts.Length < 2)
+                return null;
+
+            var messageBody = messageWithCode.Substring(messageWithCode.IndexOf(": ") + 2);
+            var message = new CompilerMessage
+            {
+                message = messageBody,
+                file = originalMessage.file,
+                line = originalMessage.line,
+                code = messageParts[0]
+            };
+
+            // disregard originalMessages[i].type because it does not support CompilerMessageType.Info in 2020.x
+            switch (messageType)
+            {
+                case "error":
+                    message.type = CompilerMessageType.Error;
+                    break;
+                case "warning":
+                    message.type = CompilerMessageType.Warning;
+                    break;
+                case "info":
+                    message.type = CompilerMessageType.Info;
+                    break;
+            }
+
+            return message;
         }
 
         void UpdateAssemblyBuilders()
