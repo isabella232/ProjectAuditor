@@ -48,6 +48,7 @@ namespace Unity.ProjectAuditor.Editor.UI.Framework
             m_Layout = layout;
             m_FlatView = !desc.groupByDescriptor;
             multicolumnHeader.sortingChanged += OnSortingChanged;
+            showAlternatingRowBackgrounds = true;
 
             Clear();
         }
