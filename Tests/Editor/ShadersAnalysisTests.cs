@@ -332,7 +332,7 @@ Shader ""Custom/MyEditorShader""
         }
 
         [Test]
-        public void Shaders_Sizes_AreReported()
+        public void ShadersAnalysis_Sizes_AreReported()
         {
             var shaders = Utility.AnalyzeBuild().GetIssues(IssueCategory.Shader);
             Assert.True(ShadersModule.BuildDataAvailable());
@@ -544,7 +544,7 @@ Shader ""Custom/MyEditorShader""
         }
 
         [Test]
-        public void ShaderCompilerMessageIsReported()
+        public void ShadersAnalysis_CompilerMessage_IsReported()
         {
             var compilerMessages = Utility.Analyze(IssueCategory.ShaderCompilerMessage);
             var message = compilerMessages.FirstOrDefault(i => i.description.Contains(k_ShaderName));
