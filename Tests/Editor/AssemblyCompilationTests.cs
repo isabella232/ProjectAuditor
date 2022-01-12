@@ -9,6 +9,24 @@ namespace UnityEditor.ProjectAuditor.EditorTests
 {
     class AssemblyCompilationTests
     {
+        TempAsset m_TempAsset; // this is required to generate Assembly-CSharp.dll
+
+        [OneTimeSetUp]
+        public void SetUp()
+        {
+            m_TempAsset = new TempAsset("MyClass.cs", @"
+class MyClass
+{
+}
+");
+        }
+
+        [OneTimeTearDown]
+        public void TearDown()
+        {
+            TempAsset.Cleanup();
+        }
+
         [Test]
         public void AssemblyCompilation_DefaultAssembly_IsCompiled()
         {
