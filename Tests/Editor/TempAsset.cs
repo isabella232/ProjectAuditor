@@ -45,7 +45,7 @@ namespace UnityEditor.ProjectAuditor.EditorTests
         public static void Cleanup()
         {
             var path = Path.Combine("Assets", k_TempFolder);
-            if (File.Exists(path))
+            if (Directory.Exists(path))
             {
                 Directory.Delete(path, true);
                 File.Delete(path + ".meta");
