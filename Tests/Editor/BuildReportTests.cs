@@ -25,7 +25,7 @@ namespace UnityEditor.ProjectAuditor.EditorTests
         }
 
         [Test]
-        public void BuildReportIsSupported()
+        public void BuildReport_IsSupported()
         {
             var projectAuditor = new Unity.ProjectAuditor.Editor.ProjectAuditor();
             var module = projectAuditor.GetModule<BuildReportModule>();
@@ -41,7 +41,7 @@ namespace UnityEditor.ProjectAuditor.EditorTests
 #if !UNITY_2019_4_OR_NEWER
         [Ignore("Not Supported in this version of Unity")]
 #endif
-        public void BuildReportFilesAreReported()
+        public void BuildReport_Files_AreReported()
         {
             var issues = Utility.AnalyzeBuild().GetIssues(IssueCategory.BuildFile);
             var matchingIssue = issues.FirstOrDefault(i => i.relativePath.Equals(m_TempAsset.relativePath));
@@ -58,7 +58,7 @@ namespace UnityEditor.ProjectAuditor.EditorTests
 #if !UNITY_2019_4_OR_NEWER
         [Ignore("Not Supported in this version of Unity")]
 #endif
-        public void BuildReportStepsAreReported()
+        public void BuildReport_Steps_AreReported()
         {
             var issues = Utility.AnalyzeBuild().GetIssues(IssueCategory.BuildStep);
             var step = issues.FirstOrDefault(i => i.description.Equals("Build player"));

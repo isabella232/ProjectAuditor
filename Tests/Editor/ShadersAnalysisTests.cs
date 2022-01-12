@@ -18,7 +18,7 @@ using UnityEditor.SceneManagement;
 
 namespace UnityEditor.ProjectAuditor.EditorTests
 {
-    class ShaderTests
+    class ShadersAnalysisTests
     {
         const string k_ShaderName = "Custom/MyTestShader,1"; // comma in the name for testing purposes
 
@@ -323,7 +323,7 @@ Shader ""Custom/MyEditorShader""
 
 #if UNITY_2018_2_OR_NEWER
         [Test]
-        public void ShaderVariantsRequireBuild()
+        public void ShadersAnalysis_Variants_RequireBuild()
         {
             ShadersModule.ClearBuildData();
             var issues = Utility.Analyze(IssueCategory.ShaderVariant);
@@ -332,7 +332,7 @@ Shader ""Custom/MyEditorShader""
         }
 
         [Test]
-        public void ShaderSizesAreReported()
+        public void Shaders_Sizes_AreReported()
         {
             var shaders = Utility.AnalyzeBuild().GetIssues(IssueCategory.Shader);
             Assert.True(ShadersModule.BuildDataAvailable());
@@ -347,7 +347,7 @@ Shader ""Custom/MyEditorShader""
         }
 
         [Test]
-        public void ShaderVariantsAreReported()
+        public void ShadersAnalysis_Variants_AreReported()
         {
             var issues = Utility.AnalyzeBuild().GetIssues(IssueCategory.ShaderVariant);
             Assert.True(ShadersModule.BuildDataAvailable());
@@ -385,7 +385,7 @@ Shader ""Custom/MyEditorShader""
         }
 
         [Test]
-        public void ShaderVariantForBuiltInKeywordIsReported()
+        public void ShadersAnalysis_VariantForBuiltInKeyword_IsReported()
         {
             var issues =  Utility.AnalyzeBuild().GetIssues(IssueCategory.ShaderVariant);
 
@@ -407,7 +407,7 @@ Shader ""Custom/MyEditorShader""
         }
 
         [Test]
-        public void SurfShaderVariantsAreReported()
+        public void ShadersAnalysis_SurfShaderVariants_AreReported()
         {
             var issues =  Utility.AnalyzeBuild().GetIssues(IssueCategory.ShaderVariant);
 
@@ -424,7 +424,7 @@ Shader ""Custom/MyEditorShader""
         }
 
         [Test]
-        public void StrippedVariantsAreNotReported()
+        public void ShadersAnalysis_StrippedVariants_AreNotReported()
         {
             StripVariants.Enabled = true;
             var issues = Utility.AnalyzeBuild().GetIssues(IssueCategory.ShaderVariant);
@@ -436,14 +436,14 @@ Shader ""Custom/MyEditorShader""
         }
 
         [Test]
-        public void PlayerLogDoesNotContainShaderCompilationLog()
+        public void ShadersAnalysis_PlayerLog_DoesNotContainShaderCompilationMessages()
         {
             var result = ShadersModule.ParsePlayerLog(m_PlayerLogWithNoCompilationResource.relativePath, new ProjectIssue[0]);
             Assert.That(result, Is.EqualTo(ParseLogResult.NoCompiledVariants));
         }
 
         [Test]
-        public void UnusedVariantsAreReported()
+        public void ShadersAnalysis_UnusedVariants_AreReported()
         {
             EditorSceneManager.SaveScene(SceneManager.GetActiveScene(), "Assets/UntitledScene.unity");
 
@@ -505,7 +505,7 @@ Shader ""Custom/MyEditorShader""
 #endif
 
         [Test]
-        public void ShaderIsReported()
+        public void ShadersAnalysis_Shader_IsReported()
         {
             ShadersModule.ClearBuildData();
             var issues = Utility.Analyze(IssueCategory.Shader);
@@ -534,7 +534,7 @@ Shader ""Custom/MyEditorShader""
 
 #if UNITY_2019_1_OR_NEWER
         [Test]
-        public void ShaderWithErrorIsReported()
+        public void ShadersAnalysis_ShaderWithError_IsReported()
         {
             var issues = Utility.Analyze(IssueCategory.Shader);
             var shadersWithErrors = issues.Where(i => i.severity == Rule.Severity.Error);
@@ -558,7 +558,7 @@ Shader ""Custom/MyEditorShader""
 #endif
 
         [Test]
-        public void ShaderUsingBuiltInKeywordIsReported()
+        public void ShadersAnalysis_ShaderUsingBuiltInKeyword_IsReported()
         {
             var issues = Utility.Analyze(IssueCategory.Shader);
             var shaderIssue = issues.FirstOrDefault(i => i.description.Equals("Custom/ShaderUsingBuiltInKeyword"));
@@ -578,7 +578,7 @@ Shader ""Custom/MyEditorShader""
         }
 
         [Test]
-        public void SurfShaderIsReported()
+        public void ShadersAnalysis_SurfShader_IsReported()
         {
             var issues = Utility.Analyze(IssueCategory.Shader);
             var shaderIssue = issues.FirstOrDefault(i => i.description.Equals("Custom/MySurfShader"));
@@ -598,7 +598,7 @@ Shader ""Custom/MyEditorShader""
         }
 
         [Test]
-        public void EditorShaderIsNotReported()
+        public void ShadersAnalysis_EditorShader_IsNotReported()
         {
             var issues = Utility.Analyze(IssueCategory.Shader);
             issues = issues.Where(i => i.description.Equals("Custom/MyEditorShader")).ToArray();
@@ -610,7 +610,7 @@ Shader ""Custom/MyEditorShader""
 #if UNITY_2021_1_OR_NEWER
         [Ignore("TODO: investigate reason for test failure")]
 #endif
-        public void EditorDefaultResourcesShaderIsNotReported()
+        public void ShadersAnalysis_EditorDefaultResourcesShader_IsNotReported()
         {
             var issues = Utility.Analyze(IssueCategory.Shader);
             var filteredIssues = issues.Where(i => i.relativePath.Contains("Editor Default Resources")).ToArray();
