@@ -34,7 +34,7 @@ namespace UnityEditor.ProjectAuditor.EditorTests
         }
 
         [Test]
-        public void SettingsAnalysis_Issues_IsNotReportedOnceFixed()
+        public void SettingsAnalysis_Issue_IsNotReportedOnceFixed()
         {
             var savedFixedDeltaTime = Time.fixedDeltaTime;
             // 0.02f is the default Time.fixedDeltaTime value and will be reported as an issue
