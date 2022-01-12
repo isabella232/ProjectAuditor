@@ -436,7 +436,7 @@ Shader ""Custom/MyEditorShader""
 
             var keywords = issues.Select(i => i.GetCustomProperty(ShaderVariantProperty.Keywords));
 
-            Assert.False(keywords.Any(key => key.Equals(s_KeywordName)));
+            Assert.False(keywords.Any(key => key.Equals(s_KeywordName)), "Keyword {0} not found in {1}", s_KeywordName, keywords);
         }
 
         [Test]
