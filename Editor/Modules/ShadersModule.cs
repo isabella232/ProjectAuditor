@@ -472,6 +472,10 @@ namespace Unity.ProjectAuditor.Editor.Auditors
                 var keywordsString = parts[3];
                 var keywords = StringToKeywords(keywordsString);
 
+                // fixup OpenGLCore stage to be consistent with built variants stage
+                if (stage.Equals("all"))
+                    stage = "vertex";
+
                 if (!compiledVariants.ContainsKey(shaderName))
                 {
                     compiledVariants.Add(shaderName, new List<CompiledVariantData>());
