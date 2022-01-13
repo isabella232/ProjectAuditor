@@ -437,7 +437,7 @@ Shader ""Custom/MyEditorShader""
 
             var builtVariantsKeywords = issues.Select(i => i.GetCustomProperty(ShaderVariantProperty.Keywords)).Distinct().ToArray();
 
-            Assert.False(builtVariantsKeywords.Any(key => key.Equals(s_KeywordName)), "Keyword {0} found in {1}", s_KeywordName, string.Join(", ", builtVariantsKeywords));
+            Assert.False(builtVariantsKeywords.Any(key => key.Equals(s_KeywordName)), "Keyword {0} found in {1}", s_KeywordName, string.Join("\n", builtVariantsKeywords));
         }
 
         [Test]
@@ -525,10 +525,7 @@ Shader ""Custom/MyEditorShader""
             Assert.AreEqual((int)ShaderProperty.Num, shaderIssue.GetNumCustomProperties());
             Assert.True(shaderIssue.GetCustomProperty(ShaderProperty.NumVariants).Equals(ShadersModule.k_NotAvailable), "Num Variants: " + shaderIssue.GetCustomProperty(ShaderProperty.NumVariants));
 
-#if UNITY_2021_1_OR_NEWER
-            var expectedNumPasses = 12;
-            var expectedNumKeywords = 12;
-#elif UNITY_2019_1_OR_NEWER
+#if UNITY_2019_1_OR_NEWER
             var expectedNumPasses = 2;
             var expectedNumKeywords = 2;
 #else
