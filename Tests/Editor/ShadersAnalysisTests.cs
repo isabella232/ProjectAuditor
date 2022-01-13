@@ -62,6 +62,12 @@ namespace UnityEditor.ProjectAuditor.EditorTests
         }
 #endif
 
+        [SetUp]
+        public void Clear()
+        {
+            // Clear previously built variants
+            ShadersModule.ClearBuildData();
+        }
 
         [OneTimeSetUp]
         public void SetUp()
