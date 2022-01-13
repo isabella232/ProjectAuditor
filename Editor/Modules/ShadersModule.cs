@@ -151,12 +151,17 @@ namespace Unity.ProjectAuditor.Editor.Auditors
 
         // k_NoPassNames and k_NoKeywords must be consistent with values assigned in SubProgram::Compile()
         internal static readonly string[] k_NoPassNames = new[] { "unnamed", "<unnamed>"}; // 2019.x uses: <unnamed>, whilst 2020.x uses unnamed
+        internal static readonly Dictionary<string, string> k_StageNameMap = new Dictionary<string, string>()
+        {
+            { "all", "vertex" },       // GLES* / OpenGLCore
+            { "pixel", "fragment" }    // Metal
+        };
         internal const string k_NoKeywords = "<no keywords>";
-        internal const string k_UniqueStageName = "all";        // GLES* / OpenGLCore
         internal const string k_UnnamedPassPrefix = "Pass ";
         internal const string k_NoRuntimeData = "?";
         internal const string k_NotAvailable = "N/A";
         internal const string k_Unknown = "Unknown";
+
         const int k_ShaderVariantFirstId = 400003;
 
         static Dictionary<Shader, List<ShaderVariantData>> s_ShaderVariantData = new Dictionary<Shader, List<ShaderVariantData>>();
@@ -475,8 +480,8 @@ namespace Unity.ProjectAuditor.Editor.Auditors
                 var keywords = StringToKeywords(keywordsString);
 
                 // fix-up stage to be consistent with built variants stage
-                if (stage.Equals(k_UniqueStageName))
-                    stage = "vertex";
+                if (k_StageNameMap.ContainsKey(stage))
+                    stage = k_StageNameMap[stage];
 
                 if (!compiledVariants.ContainsKey(shaderName))
                 {
