@@ -531,7 +531,10 @@ Shader ""Custom/MyEditorShader""
             Assert.AreEqual((int)ShaderProperty.Num, shaderIssue.GetNumCustomProperties());
             Assert.True(shaderIssue.GetCustomProperty(ShaderProperty.NumVariants).Equals(ShadersModule.k_NotAvailable), "Num Variants: " + shaderIssue.GetCustomProperty(ShaderProperty.NumVariants));
 
-#if UNITY_2019_1_OR_NEWER
+#if UNITY_2021_1_OR_NEWER
+            var expectedNumPasses = 2;
+            var expectedNumKeywords = 12;
+#elif UNITY_2019_1_OR_NEWER
             var expectedNumPasses = 2;
             var expectedNumKeywords = 2;
 #else
@@ -542,10 +545,13 @@ Shader ""Custom/MyEditorShader""
             Assert.AreEqual(expectedNumPasses, shaderIssue.GetCustomPropertyAsInt(ShaderProperty.NumPasses), "NumPasses was : " + shaderIssue.GetCustomProperty(ShaderProperty.NumPasses));
             Assert.AreEqual(expectedNumKeywords, shaderIssue.GetCustomPropertyAsInt(ShaderProperty.NumKeywords), "NumKeywords was : " + shaderIssue.GetCustomProperty(ShaderProperty.NumKeywords));
 
-
             Assert.AreEqual(2000, shaderIssue.GetCustomPropertyAsInt(ShaderProperty.RenderQueue), "RenderQueue was : " + shaderIssue.GetCustomProperty(ShaderProperty.RenderQueue));
             Assert.False(shaderIssue.GetCustomPropertyAsBool(ShaderProperty.Instancing), "Instancing is supported but it should not be.");
-            Assert.False(shaderIssue.GetCustomPropertyAsBool(ShaderProperty.SrpBatcher), "SRP Batcher is supported but it should not be.");
+#if UNITY_2021_1_OR_NEWER
+            Assert.True(shaderIssue.GetCustomPropertyAsBool(ShaderProperty.SrpBatcher), "SRP Batcher is not supported.");
+#else
+            Assert.False(shaderIssue.GetCustomPropertyAsBool(ShaderProperty.SrpBatcher), "SRP Batcher is supported.");
+#endif
         }
 
 #if UNITY_2019_1_OR_NEWER
