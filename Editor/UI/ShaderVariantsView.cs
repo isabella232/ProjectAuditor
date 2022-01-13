@@ -139,7 +139,11 @@ The number of Variants contributes to the build size, however, there might be Va
                     else if (selectedIssues.Length > 1)
                         GUILayout.TextArea("<Multiple selection>", SharedStyles.TextArea, GUILayout.ExpandHeight(true));
                     else // if (selectedDescriptors.Length == 1)
-                        GUILayout.TextArea(selectedIssues[0].GetCustomProperty(m_PropertyFoldouts[i].id).Replace(" ", "\n"), SharedStyles.TextArea, GUILayout.ExpandHeight(true));
+                    {
+                        var keywords = selectedIssues[0].GetCustomProperty(m_PropertyFoldouts[i].id);
+                        var text = keywords.Equals(ShadersModule.k_NoKeywords) ? keywords : keywords.Replace(" ", "\n");
+                        GUILayout.TextArea(text, SharedStyles.TextArea, GUILayout.ExpandHeight(true));
+                    }
                     GUILayout.EndScrollView();
                 }
             }
