@@ -149,9 +149,11 @@ namespace Unity.ProjectAuditor.Editor.Auditors
             severity = Rule.Severity.Error
         };
 
-        internal const string k_NoPassName = "<unnamed>";
-        internal const string k_UnnamedPassPrefix = "Pass ";
+        // k_NoPassNames and k_NoKeywords must be consistent with values assigned in SubProgram::Compile()
+        internal static readonly string[] k_NoPassNames = new[] { "unnamed", "<unnamed>"}; // 2019.x uses: <unnamed>, whilst 2020.x uses unnamed
         internal const string k_NoKeywords = "<no keywords>";
+        internal const string k_UniqueStageName = "all";        // GLES* / OpenGLCore
+        internal const string k_UnnamedPassPrefix = "Pass ";
         internal const string k_NoRuntimeData = "?";
         internal const string k_NotAvailable = "N/A";
         internal const string k_Unknown = "Unknown";
@@ -472,8 +474,8 @@ namespace Unity.ProjectAuditor.Editor.Auditors
                 var keywordsString = parts[3];
                 var keywords = StringToKeywords(keywordsString);
 
-                // fixup OpenGLCore stage to be consistent with built variants stage
-                if (stage.Equals("all"))
+                // fix-up stage to be consistent with built variants stage
+                if (stage.Equals(k_UniqueStageName))
                     stage = "vertex";
 
                 if (!compiledVariants.ContainsKey(shaderName))
@@ -516,8 +518,8 @@ namespace Unity.ProjectAuditor.Editor.Auditors
                 if (compiledVariants.ContainsKey(shaderName))
                 {
                     // note that we are not checking pass name since there is an inconsistency regarding "unnamed" passes between build vs compiled
-                    var matchingVariants = compiledVariants[shaderName].Where(cv => ShaderVariantsMatch(cv, stage, passName, keywords));
-                    isVariantCompiled = matchingVariants.Count() > 0;
+                    var matchingVariants = compiledVariants[shaderName].Where(cv => ShaderVariantsMatch(cv, stage, passName, keywords)).ToArray();
+                    isVariantCompiled = matchingVariants.Length > 0;
                 }
 
                 builtVariant.SetCustomProperty(ShaderVariantProperty.Compiled, isVariantCompiled);
@@ -559,11 +561,12 @@ namespace Unity.ProjectAuditor.Editor.Auditors
             var passMatch = cv.pass.Equals(passName);
             if (!passMatch)
             {
+                var isUnnamed = k_NoPassNames.Contains(cv.pass);
 #if UNITY_2019_1_OR_NEWER
                 var pass = 0;
-                passMatch = cv.pass.Equals(k_NoPassName) && passName.StartsWith(k_UnnamedPassPrefix) && int.TryParse(passName.Substring(k_UnnamedPassPrefix.Length), out pass);
+                passMatch = isUnnamed && passName.StartsWith(k_UnnamedPassPrefix) && int.TryParse(passName.Substring(k_UnnamedPassPrefix.Length), out pass);
 #else
-                passMatch = cv.pass.Equals(k_NoPassName) && string.IsNullOrEmpty(passName);
+                passMatch = isUnnamed && string.IsNullOrEmpty(passName);
 #endif
             }
 
