@@ -594,7 +594,10 @@ Shader ""Custom/MyEditorShader""
 
             // check custom property
             Assert.AreEqual((int)ShaderProperty.Num, shaderIssue.GetNumCustomProperties());
-#if UNITY_2019_1_OR_NEWER
+#if UNITY_2021_1_OR_NEWER
+            Assert.AreEqual(1, shaderIssue.GetCustomPropertyAsInt(ShaderProperty.NumPasses), "NumPasses was : " + shaderIssue.GetCustomProperty(ShaderProperty.NumPasses));
+            Assert.AreEqual(10, shaderIssue.GetCustomPropertyAsInt(ShaderProperty.NumKeywords), "NumKeywords was : " + shaderIssue.GetCustomProperty(ShaderProperty.NumKeywords));
+#elif UNITY_2019_1_OR_NEWER
             Assert.AreEqual(1, shaderIssue.GetCustomPropertyAsInt(ShaderProperty.NumPasses), "NumPasses was : " + shaderIssue.GetCustomProperty(ShaderProperty.NumPasses));
             Assert.AreEqual(1, shaderIssue.GetCustomPropertyAsInt(ShaderProperty.NumKeywords), "NumKeywords was : " + shaderIssue.GetCustomProperty(ShaderProperty.NumKeywords));
 #else
@@ -614,7 +617,10 @@ Shader ""Custom/MyEditorShader""
 
             // check custom property
             Assert.AreEqual((int)ShaderProperty.Num, shaderIssue.GetNumCustomProperties());
-#if UNITY_2019_1_OR_NEWER
+#if UNITY_2021_1_OR_NEWER
+            Assert.AreEqual(4, shaderIssue.GetCustomPropertyAsInt(ShaderProperty.NumPasses), "NumPasses was : " + shaderIssue.GetCustomProperty(ShaderProperty.NumPasses));
+            Assert.AreEqual(52, shaderIssue.GetCustomPropertyAsInt(ShaderProperty.NumKeywords), "NumKeywords was : " + shaderIssue.GetCustomProperty(ShaderProperty.NumKeywords));
+#elif UNITY_2019_1_OR_NEWER
             Assert.AreEqual(4, shaderIssue.GetCustomPropertyAsInt(ShaderProperty.NumPasses), "NumPasses was : " + shaderIssue.GetCustomProperty(ShaderProperty.NumPasses));
             Assert.AreEqual(22, shaderIssue.GetCustomPropertyAsInt(ShaderProperty.NumKeywords), "NumKeywords was : " + shaderIssue.GetCustomProperty(ShaderProperty.NumKeywords));
 #else
