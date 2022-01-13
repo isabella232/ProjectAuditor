@@ -573,10 +573,12 @@ Shader ""Custom/MyEditorShader""
         public void ShadersAnalysis_CompilerMessage_IsReported()
         {
             var compilerMessages = Utility.Analyze(IssueCategory.ShaderCompilerMessage);
-            var message = compilerMessages.FirstOrDefault(i => i.description.Contains(k_ShaderName));
+            var message = compilerMessages.FirstOrDefault(i => i.description.Equals("floating point division by zero"));
             Assert.NotNull(message);
 
-            Assert.True(message.description.Equals(string.Format("{0}: floating point division by zero", k_ShaderName)));
+            var allowedPlatforms = new[] {ShaderCompilerPlatform.Metal.ToString(), ShaderCompilerPlatform.D3D.ToString()};
+            Assert.True(allowedPlatforms.Contains(message.GetCustomProperty(ShaderMessageProperty.Platform)), "Platform: {0}", message.GetCustomProperty(ShaderMessageProperty.Platform));
+            Assert.True(message.GetCustomProperty(ShaderMessageProperty.ShaderName).Equals(k_ShaderName), "Shader Name: {0}", message.GetCustomProperty(ShaderMessageProperty.ShaderName));
             Assert.AreEqual(Rule.Severity.Warning, message.severity);
             Assert.AreEqual(40, message.line);
         }

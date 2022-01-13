@@ -42,6 +42,13 @@ namespace Unity.ProjectAuditor.Editor.Auditors
         Num
     }
 
+    public enum ShaderMessageProperty
+    {
+        ShaderName = 0,
+        Platform,
+        Num
+    }
+
     enum ParseLogResult
     {
         Success,
@@ -117,7 +124,9 @@ namespace Unity.ProjectAuditor.Editor.Auditors
             properties = new[]
             {
                 new PropertyDefinition { type = PropertyType.Severity},
-                new PropertyDefinition { type = PropertyType.Description, name = "Shader Name"},
+                new PropertyDefinition { type = PropertyType.Description, name = "Message"},
+                new PropertyDefinition { type = PropertyTypeUtil.FromCustom(ShaderMessageProperty.ShaderName), format = PropertyFormat.String, name = "Shader Name"},
+                new PropertyDefinition { type = PropertyTypeUtil.FromCustom(ShaderMessageProperty.Platform), format = PropertyFormat.String, name = "Platform"},
                 new PropertyDefinition { type = PropertyType.Path, name = "Path"},
             }
         };
@@ -315,9 +324,13 @@ namespace Unity.ProjectAuditor.Editor.Auditors
             var shaderMessages = ShaderUtil.GetShaderMessages(shader);
             foreach (var message in shaderMessages)
             {
-                var description = string.Format("{0}: {1}", shaderName, message.message);
                 var messageDescriptor = message.severity == ShaderCompilerMessageSeverity.Error ? k_CompilerErrorDescriptor : k_CompilerWarningDescriptor;
-                var messageIssue = new ProjectIssue(messageDescriptor, description, IssueCategory.ShaderCompilerMessage, new Location(assetPath, message.line));
+                var messageIssue = new ProjectIssue(messageDescriptor, message.message, IssueCategory.ShaderCompilerMessage, new Location(assetPath, message.line));
+                messageIssue.SetCustomProperties(new object[(int)ShaderMessageProperty.Num]
+                {
+                    shaderName,
+                    message.platform
+                });
                 onIssueFound(messageIssue);
             }
 
