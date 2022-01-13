@@ -67,7 +67,7 @@ namespace UnityEditor.ProjectAuditor.EditorTests
 
             step = issues.FirstOrDefault(i => i.description.Equals("Compile scripts"));
             Assert.NotNull(step, "\"Compile scripts\" string not found");
-#if UNITY_2022_1_OR_NEWER
+#if UNITY_2021_1_OR_NEWER
             Assert.That(step.depth, Is.EqualTo(3));
 #else
             Assert.That(step.depth, Is.EqualTo(1));

@@ -34,7 +34,7 @@ namespace UnityEditor.ProjectAuditor.EditorTests
 #pragma warning restore 0414
 
 #if UNITY_2018_2_OR_NEWER
-        static string s_KeywordName = "DIRECTIONAL";
+        const string s_KeywordName = "DIRECTIONAL";
 
         class StripVariants : IPreprocessShaders
         {
@@ -53,6 +53,7 @@ namespace UnityEditor.ProjectAuditor.EditorTests
                 {
                     if (shaderCompilerData[i].shaderKeywordSet.IsEnabled(keyword))
                     {
+                        // remove variant containing the specified keyword
                         shaderCompilerData.RemoveAt(i);
                         --i;
                     }
@@ -434,9 +435,9 @@ Shader ""Custom/MyEditorShader""
             var issues = Utility.AnalyzeBuild().GetIssues(IssueCategory.ShaderVariant);
             StripVariants.Enabled = false;
 
-            var keywords = issues.Select(i => i.GetCustomProperty(ShaderVariantProperty.Keywords));
+            var builtVariantsKeywords = issues.Select(i => i.GetCustomProperty(ShaderVariantProperty.Keywords)).Distinct().ToArray();
 
-            Assert.False(keywords.Any(key => key.Equals(s_KeywordName)), "Keyword {0} not found in {1}", s_KeywordName, keywords);
+            Assert.False(builtVariantsKeywords.Any(key => key.Equals(s_KeywordName)), "Keyword {0} found in {1}", s_KeywordName, string.Join(", ", builtVariantsKeywords));
         }
 
         [Test]
@@ -524,13 +525,21 @@ Shader ""Custom/MyEditorShader""
             Assert.AreEqual((int)ShaderProperty.Num, shaderIssue.GetNumCustomProperties());
             Assert.True(shaderIssue.GetCustomProperty(ShaderProperty.NumVariants).Equals(ShadersModule.k_NotAvailable), "Num Variants: " + shaderIssue.GetCustomProperty(ShaderProperty.NumVariants));
 
-#if UNITY_2019_1_OR_NEWER
-            Assert.AreEqual(2, shaderIssue.GetCustomPropertyAsInt(ShaderProperty.NumPasses), "NumPasses was : " + shaderIssue.GetCustomProperty(ShaderProperty.NumPasses));
-            Assert.AreEqual(2, shaderIssue.GetCustomPropertyAsInt(ShaderProperty.NumKeywords), "NumKeywords was : " + shaderIssue.GetCustomProperty(ShaderProperty.NumKeywords));
+#if UNITY_2021_1_OR_NEWER
+            var expectedNumPasses = 12;
+            var expectedNumKeywords = 12;
+#elif UNITY_2019_1_OR_NEWER
+            var expectedNumPasses = 2;
+            var expectedNumKeywords = 2;
 #else
-            Assert.AreEqual(0, shaderIssue.GetCustomPropertyAsInt(ShaderProperty.NumPasses), "NumPasses was : " + shaderIssue.GetCustomProperty(ShaderProperty.NumPasses));
-            Assert.AreEqual(0, shaderIssue.GetCustomPropertyAsInt(ShaderProperty.NumKeywords), "NumKeywords was : " + shaderIssue.GetCustomProperty(ShaderProperty.NumKeywords));
+            var expectedNumPasses = 0;
+            var expectedNumKeywords = 0;
 #endif
+
+            Assert.AreEqual(expectedNumPasses, shaderIssue.GetCustomPropertyAsInt(ShaderProperty.NumPasses), "NumPasses was : " + shaderIssue.GetCustomProperty(ShaderProperty.NumPasses));
+            Assert.AreEqual(expectedNumKeywords, shaderIssue.GetCustomPropertyAsInt(ShaderProperty.NumKeywords), "NumKeywords was : " + shaderIssue.GetCustomProperty(ShaderProperty.NumKeywords));
+
+
             Assert.AreEqual(2000, shaderIssue.GetCustomPropertyAsInt(ShaderProperty.RenderQueue), "RenderQueue was : " + shaderIssue.GetCustomProperty(ShaderProperty.RenderQueue));
             Assert.False(shaderIssue.GetCustomPropertyAsBool(ShaderProperty.Instancing), "Instancing is supported but it should not be.");
             Assert.False(shaderIssue.GetCustomPropertyAsBool(ShaderProperty.SrpBatcher), "SRP Batcher is supported but it should not be.");
@@ -547,6 +556,10 @@ Shader ""Custom/MyEditorShader""
             Assert.NotNull(shaderIssue);
         }
 
+#endif
+
+#if UNITY_2020_1_OR_NEWER
+        // note that earlier Unity versions such as 2019.x do not report shader compiler messages
         [Test]
         public void ShadersAnalysis_CompilerMessage_IsReported()
         {
