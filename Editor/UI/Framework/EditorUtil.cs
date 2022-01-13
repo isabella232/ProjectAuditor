@@ -35,7 +35,6 @@ namespace Unity.ProjectAuditor.Editor.UI.Framework
             }
         }
 
-
         public static void OpenTextFile<T>(Location location) where T : UnityEngine.Object
         {
             var obj = AssetDatabase.LoadAssetAtPath<T>(location.Path);
