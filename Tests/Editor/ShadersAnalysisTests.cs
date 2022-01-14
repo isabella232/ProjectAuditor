@@ -386,7 +386,11 @@ Shader ""Custom/MyEditorShader""
                 Assert.True(variantsForPlatform.Any(v => v.GetCustomProperty(ShaderVariantProperty.Keywords).Equals(ShadersModule.k_NoKeywords)));
                 Assert.True(variantsForPlatform.Any(v => v.GetCustomProperty(ShaderVariantProperty.Keywords).Equals("KEYWORD_A")));
                 Assert.True(variantsForPlatform.Any(v => v.GetCustomProperty(ShaderVariantProperty.Keywords).Equals("KEYWORD_B")));
-                Assert.True(variantsForPlatform.Any(v => v.GetCustomProperty(ShaderVariantProperty.PlatformKeywords).Contains("UNITY_COLORSPACE_GAMMA")));
+#if UNITY_2021_1_OR_NEWER
+                Assert.False(variantsForPlatform.Any(v => v.GetCustomProperty(ShaderVariantProperty.PlatformKeywords).Contains("UNITY_COLORSPACE_GAMMA")), "Keyword UNITY_COLORSPACE_GAMMA not found");
+#else
+                Assert.True(variantsForPlatform.Any(v => v.GetCustomProperty(ShaderVariantProperty.PlatformKeywords).Contains("UNITY_COLORSPACE_GAMMA")), "Keyword UNITY_COLORSPACE_GAMMA not found");
+#endif
                 Assert.True(variantsForPlatform.All(v => v.GetCustomProperty(ShaderVariantProperty.Compiled).Equals(ShadersModule.k_NoRuntimeData)));
                 Assert.True(variantsForPlatform.All(v => v.GetCustomProperty(ShaderVariantProperty.Requirements).Contains(ShaderRequirements.BaseShaders.ToString())));
 
