@@ -361,7 +361,7 @@ Shader ""Custom/MyEditorShader""
         public void ShadersAnalysis_Variants_AreReported()
         {
             var issues = Utility.AnalyzeBuild().GetIssues(IssueCategory.ShaderVariant);
-            Assert.True(ShadersModule.BuildDataAvailable());
+            Assert.True(ShadersModule.BuildDataAvailable(), "Build Data not available");
 
             var keywords = issues.Select(i => i.GetCustomProperty(ShaderVariantProperty.Keywords));
             Assert.True(keywords.Any(key => key.Equals(s_KeywordName)));
@@ -402,7 +402,7 @@ Shader ""Custom/MyEditorShader""
 
             var keywords = issues.Select(i => i.GetCustomProperty(ShaderVariantProperty.Keywords)).ToArray();
 
-            Assert.True(keywords.Any(key => key.Equals(s_KeywordName)));
+            Assert.True(keywords.Any(key => key.Equals(s_KeywordName)), "Keyword {0} not found in {1}", s_KeywordName, string.Join("\n", keywords));
 
             var variants = issues.Where(i => i.description.Equals("Custom/ShaderUsingBuiltInKeyword")).ToArray();
             Assert.Positive(variants.Length, "No shader variants found");
@@ -422,9 +422,9 @@ Shader ""Custom/MyEditorShader""
         {
             var issues =  Utility.AnalyzeBuild().GetIssues(IssueCategory.ShaderVariant);
 
-            var keywords = issues.Select(i => i.GetCustomProperty(ShaderVariantProperty.Keywords));
+            var keywords = issues.Select(i => i.GetCustomProperty(ShaderVariantProperty.Keywords)).ToArray();
 
-            Assert.True(keywords.Any(key => key.Equals(s_KeywordName)));
+            Assert.True(keywords.Any(key => key.Equals(s_KeywordName)), "Keyword {0} found in {1}", s_KeywordName, string.Join("\n", keywords));
 
             var variants = issues.Where(i => i.description.Equals("Custom/MySurfShader")).ToArray();
             Assert.Positive(variants.Count());
