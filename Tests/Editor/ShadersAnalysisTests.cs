@@ -580,7 +580,7 @@ Shader ""Custom/MyEditorShader""
             var message = compilerMessages.FirstOrDefault(i => i.description.Equals("floating point division by zero"));
             Assert.NotNull(message);
 
-            var allowedPlatforms = new[] {ShaderCompilerPlatform.Metal.ToString(), ShaderCompilerPlatform.D3D.ToString()};
+            var allowedPlatforms = new[] {ShaderCompilerPlatform.Metal, ShaderCompilerPlatform.D3D, ShaderCompilerPlatform.OpenGLCore}.Select(p => p.ToString());
             Assert.True(allowedPlatforms.Contains(message.GetCustomProperty(ShaderMessageProperty.Platform)), "Platform: {0}", message.GetCustomProperty(ShaderMessageProperty.Platform));
             Assert.True(message.GetCustomProperty(ShaderMessageProperty.ShaderName).Equals(k_ShaderName), "Shader Name: {0}", message.GetCustomProperty(ShaderMessageProperty.ShaderName));
             Assert.AreEqual(Rule.Severity.Warning, message.severity);
