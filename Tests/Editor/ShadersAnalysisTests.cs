@@ -342,6 +342,7 @@ Shader ""Custom/MyEditorShader""
             Assert.False(ShadersModule.BuildDataAvailable());
         }
 
+#if BUILD_REPORT_API_SUPPORT
         [Test]
         public void ShadersAnalysis_Sizes_AreReported()
         {
@@ -356,6 +357,8 @@ Shader ""Custom/MyEditorShader""
             Assert.NotNull(testShader);
             Assert.True(testShader.GetCustomPropertyAsLong(ShaderProperty.Size) > 0);
         }
+
+#endif
 
         [Test]
         public void ShadersAnalysis_Variants_AreReported()
