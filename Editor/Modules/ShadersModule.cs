@@ -432,6 +432,13 @@ namespace Unity.ProjectAuditor.Editor.Auditors
         internal static void ClearBuildData()
         {
             s_ShaderVariantData.Clear();
+#if UNITY_2021_1_OR_NEWER
+            var playerDataCachePath = Path.Combine("Library", "PlayerDataCache");
+            if (Directory.Exists(playerDataCachePath))
+            {
+                Directory.Delete(playerDataCachePath, true);
+            }
+#endif
         }
 
         public int callbackOrder { get { return Int32.MaxValue; } }
