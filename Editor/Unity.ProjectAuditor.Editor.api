@@ -311,6 +311,14 @@ namespace Unity.ProjectAuditor.Editor.Auditors
         public int value__;
     }
 
+    public enum ShaderMessageProperty
+    {
+        public const Unity.ProjectAuditor.Editor.Auditors.ShaderMessageProperty Num = 2;
+        public const Unity.ProjectAuditor.Editor.Auditors.ShaderMessageProperty Platform = 1;
+        public const Unity.ProjectAuditor.Editor.Auditors.ShaderMessageProperty ShaderName = 0;
+        public int value__;
+    }
+
     public enum ShaderProperty
     {
         public const Unity.ProjectAuditor.Editor.Auditors.ShaderProperty AlwaysIncluded = 7;
