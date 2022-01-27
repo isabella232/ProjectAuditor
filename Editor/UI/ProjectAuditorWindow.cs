@@ -463,6 +463,7 @@ namespace Unity.ProjectAuditor.Editor.UI
 
                     m_ShouldRefresh = true;
                 },
+                null,
                 new ProgressBar()
             );
         }

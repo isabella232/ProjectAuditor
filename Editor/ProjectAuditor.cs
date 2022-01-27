@@ -123,14 +123,15 @@ namespace Unity.ProjectAuditor.Editor
         /// <summary>
         /// Runs all available modules (code, project settings) and generate a report of all found issues.
         /// </summary>
+        /// <param name="categories"> Requested Categories, if null all IssueCategory are enabled </param>
         /// <param name="progress"> Progress bar, if applicable </param>
         /// <returns> Generated report </returns>
-        public ProjectReport Audit(IProgress progress = null)
+        public ProjectReport Audit(IssueCategory[] categories = null, IProgress progress = null)
         {
             var projectReport = new ProjectReport();
             var completed = false;
 
-            Audit(projectReport.AddIssue, _completed => { completed = _completed; }, progress);
+            Audit(projectReport.AddIssue, _completed => { completed = _completed; }, categories, progress);
 
             while (!completed)
                 Thread.Sleep(50);
@@ -142,10 +143,12 @@ namespace Unity.ProjectAuditor.Editor
         /// </summary>
         /// <param name="onIssueFound"> Action called whenever a new issue is found </param>
         /// <param name="onUpdate"> Action called whenever a module completes </param>
+        /// <param name="categories"> Requested Categories, if null all IssueCategory are enabled </param>
         /// <param name="progress"> Progress bar, if applicable </param>
-        public void Audit(Action<ProjectIssue> onIssueFound, Action<bool> onUpdate, IProgress progress = null)
+        public void Audit(Action<ProjectIssue> onIssueFound, Action<bool> onUpdate, IssueCategory[] categories = null, IProgress progress = null)
         {
-            var supportedModules = m_Modules.Where(m => m.IsSupported()).ToArray();
+            var requestedModules = categories != null ? categories.Select(GetModule) : m_Modules;
+            var supportedModules = requestedModules.Where(m => m.IsSupported()).ToArray();
             var numModules = supportedModules.Length;
             if (numModules == 0)
             {
