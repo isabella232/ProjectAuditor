@@ -52,7 +52,15 @@ namespace Unity.ProjectAuditor.Editor.UI.Framework
             }
         }
 
-        public void Create(ProjectAuditor projectAuditor, Preferences preferences, IProjectIssueFilter filter, Action<ViewDescriptor, bool> onCreateView = null)
+        public void Refresh()
+        {
+            foreach (var view in m_Views)
+            {
+                view.Refresh();
+            }
+        }
+
+        public void Create(ProjectAuditor projectAuditor, Preferences preferences, IProjectIssueFilter filter = null, Action<ViewDescriptor, bool> onCreateView = null)
         {
             Profiler.BeginSample("ViewManager.Create");
             var views = new List<AnalysisView>();
@@ -109,7 +117,7 @@ namespace Unity.ProjectAuditor.Editor.UI.Framework
 
         public AnalysisView GetActiveView()
         {
-            return m_Views[m_ActiveViewIndex];
+            return m_Views != null ? m_Views[m_ActiveViewIndex] : null;
         }
 
         public AnalysisView GetView(int index)
@@ -129,7 +137,8 @@ namespace Unity.ProjectAuditor.Editor.UI.Framework
                 return;
 
             var viewIndex = Array.IndexOf(m_Views, GetView(category));
-            ChangeView(viewIndex);
+            if (viewIndex >= 0)
+                ChangeView(viewIndex);
         }
 
         public void ChangeView(int index)
@@ -145,6 +154,11 @@ namespace Unity.ProjectAuditor.Editor.UI.Framework
                 if (onViewChanged != null)
                     onViewChanged(m_ActiveViewIndex);
             }
+        }
+
+        public bool HasCategory(IssueCategory category)
+        {
+            return m_Categories.Contains(category);
         }
 
         public void SaveSettings()

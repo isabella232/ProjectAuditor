@@ -439,7 +439,7 @@ namespace Unity.ProjectAuditor.Editor.UI.Framework
 
         public virtual bool Match(ProjectIssue issue)
         {
-            return m_BaseFilter.Match(issue) && m_TextFilter.Match(issue);
+            return m_BaseFilter == null || (m_BaseFilter.Match(issue) && m_TextFilter.Match(issue));
         }
 
         internal virtual void OnEnable()
