@@ -27,7 +27,7 @@ namespace Unity.ProjectAuditor.Editor
         static Dictionary<string, IssueCategory> s_CustomCategories = new Dictionary<string, IssueCategory>();
         static string s_DataPath;
 
-        public static string DataPath
+        internal static string DataPath
         {
             get
             {
@@ -49,8 +49,15 @@ namespace Unity.ProjectAuditor.Editor
                 return s_DataPath;
             }
         }
-        public const string DefaultAssetPath = "Assets/Editor/ProjectAuditorConfig.asset";
-        public const string PackagePath = "Packages/com.unity.project-auditor";
+        internal const string DefaultAssetPath = "Assets/Editor/ProjectAuditorConfig.asset";
+        internal const string PackagePath = "Packages/com.unity.project-auditor";
+        internal static string ProjectPath
+        {
+            get
+            {
+                return Path.GetDirectoryName(Application.dataPath).Replace("\\", "/");
+            }
+        }
 
         public static string PackageVersion
         {

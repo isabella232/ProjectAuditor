@@ -94,20 +94,32 @@ namespace UnityEditor.ProjectAuditor.EditorTests
 
 #if UNITY_2018_1_OR_NEWER
         [Test]
-        public void AssemblyInfo_DefaultAssembly_AssetPathCanBeResolved()
+        public void AssemblyInfo_DefaultAssembly_PathCanBeResolved()
         {
             var assembly = CompilationPipeline.GetAssemblies(AssembliesType.Player).FirstOrDefault(a => a.name.Equals(Path.GetFileNameWithoutExtension(AssemblyInfo.DefaultAssemblyFileName)));
             var assemblyInfo = AssemblyInfoProvider.GetAssemblyInfoFromAssemblyPath(assembly.outputPath);
-
             var path = AssemblyInfoProvider.ResolveAssetPath(assemblyInfo, Path.Combine(Application.dataPath, "somefile"));
 
-            Assert.True(path.Equals("Assets/somefile"));
+            Assert.True(path.Equals("Assets/somefile"), "Resolved Path is: " + path);
+        }
+
+        [Test]
+        public void AssemblyInfo_PackageAssembly_PathCanBeResolved()
+        {
+            var assembly = CompilationPipeline.GetAssemblies(AssembliesType.Player).FirstOrDefault(a => a.name.Contains("UnityEngine.UI"));
+            var assemblyInfo = AssemblyInfoProvider.GetAssemblyInfoFromAssemblyPath(assembly.outputPath);
+            var path = AssemblyInfoProvider.ResolveAssetPath(assemblyInfo, Path.Combine(Application.dataPath, "Library\\PackageCache\\com.unity.ugui@1.0.0\\Runtime\\UI\\Core\\AnimationTriggers.cs"));
+
+            Assert.True(path.Equals("Packages/com.unity.ugui/Runtime/UI/Core/AnimationTriggers.cs"), "Resolved Path is: " + path);
         }
 
         [Test]
         public void AssemblyInfo_DefaultAssembly_IsCorrect()
         {
             var assembly = CompilationPipeline.GetAssemblies(AssembliesType.Player).FirstOrDefault(a => a.name.Equals(Path.GetFileNameWithoutExtension(AssemblyInfo.DefaultAssemblyFileName)));
+
+            Assert.NotNull(assembly);
+
             var assemblyInfo = AssemblyInfoProvider.GetAssemblyInfoFromAssemblyPath(assembly.outputPath);
 
             Assert.IsTrue(assemblyInfo.path.Equals("Library/ScriptAssemblies/Assembly-CSharp.dll"));
@@ -119,6 +131,9 @@ namespace UnityEditor.ProjectAuditor.EditorTests
         public void AssemblyInfo_LocalPackageAssemblyInfo_IsCorrect()
         {
             var assembly = CompilationPipeline.GetAssemblies(AssembliesType.Editor).FirstOrDefault(a => a.name.Equals("Unity.ProjectAuditor.Editor"));
+
+            Assert.NotNull(assembly);
+
             var assemblyInfo = AssemblyInfoProvider.GetAssemblyInfoFromAssemblyPath(assembly.outputPath);
 
             Assert.IsTrue(assemblyInfo.path.Equals("Library/ScriptAssemblies/Unity.ProjectAuditor.Editor.dll"));

@@ -40,7 +40,8 @@ namespace Unity.ProjectAuditor.Editor.Utils
 
     static class AssemblyInfoProvider
     {
-        const string k_BuiltInPackagesFolder = "BuiltInPackages";
+        const string k_PhysicalPackagesRoot = "PackageCache";
+        const string k_VirtualPackagesRoot = "Packages";
 
         internal static IEnumerable<string> GetPrecompiledAssemblyPaths(PrecompiledAssemblyTypes flags)
         {
@@ -123,7 +124,7 @@ namespace Unity.ProjectAuditor.Editor.Utils
             {
                 assemblyInfo.asmDefPath = asmDefPath;
                 var folders = asmDefPath.Split('/');
-                if (folders.Length > 2 && folders[0].Equals("Packages"))
+                if (folders.Length > 2 && folders[0].Equals(k_VirtualPackagesRoot))
                 {
                     assemblyInfo.relativePath = Path.Combine(folders[0], folders[1]).Replace("\\", "/");
 #if UNITY_2019_3_OR_NEWER
@@ -155,29 +156,36 @@ namespace Unity.ProjectAuditor.Editor.Utils
             // sanitize path
             path = path.Replace("\\", "/");
 
-            if (!string.IsNullOrEmpty(assemblyInfo.asmDefPath) && assemblyInfo.asmDefPath.StartsWith("Packages"))
+            if (!string.IsNullOrEmpty(assemblyInfo.asmDefPath) && assemblyInfo.asmDefPath.StartsWith(k_VirtualPackagesRoot))
             {
-                var asmDefFolder = Path.GetDirectoryName(assemblyInfo.asmDefPath.Remove(0, assemblyInfo.relativePath.Length + 1));
-                if (path.IndexOf(asmDefFolder) < 0)
+                var pathParts = path.Split('/').ToList();
+                var rootIndex = pathParts.FindIndex(p => p.Equals(k_PhysicalPackagesRoot) || p.Equals(k_VirtualPackagesRoot));
+
+                // remove all folders, including package_name@version
+                pathParts.RemoveRange(0, rootIndex + 2);
+
+                // build (relative) path
+                var relativePath = string.Join("/", pathParts.ToArray());
+
+                var asmDefFolder = Path.GetDirectoryName(assemblyInfo.asmDefPath.Remove(0, assemblyInfo.relativePath.Length + 1)).Replace("\\", "/");
+                if (relativePath.IndexOf(asmDefFolder, StringComparison.InvariantCulture) < 0)
                 {
                     // handle source files that are not located with asmdef
-                    var sourcePath = assemblyInfo.sourcePaths.FirstOrDefault(p => path.Contains(p));
+                    var sourcePath = assemblyInfo.sourcePaths.FirstOrDefault(p => relativePath.Contains(p));
                     if (sourcePath != null)
-                        return Path.Combine(assemblyInfo.relativePath, sourcePath);
+                        return Path.Combine(assemblyInfo.relativePath, sourcePath).Replace("\\", "/");
 
                     Debug.LogWarningFormat("Could not find asmdef for {0} when analyzing {1}", path, assemblyInfo.name);
                     return path; // Could not resolve path
                 }
-                return Path.Combine(assemblyInfo.relativePath, path.Substring(path.IndexOf(asmDefFolder)));
-            }
-            if (path.Contains(k_BuiltInPackagesFolder))
-            {
-                return path.Remove(0, path.IndexOf(k_BuiltInPackagesFolder) + k_BuiltInPackagesFolder.Length);
+
+                return Path.Combine(assemblyInfo.relativePath, relativePath).Replace("\\", "/");
             }
 
-            // remove Assets folder
-            var projectPath = Path.GetDirectoryName(Application.dataPath);
-            return path.Remove(0, projectPath.Length + 1);
+            // remove project path folder
+            if (path.StartsWith(ProjectAuditor.ProjectPath))
+                return path.Remove(0,  ProjectAuditor.ProjectPath.Length + 1);
+            return path;
         }
     }
 }
