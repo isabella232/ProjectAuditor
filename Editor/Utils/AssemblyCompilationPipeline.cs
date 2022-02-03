@@ -118,7 +118,7 @@ namespace Unity.ProjectAuditor.Editor.Utils
         string[] m_RoslynAnalyzers;
 #endif
 
-        public Action<string, CompilerMessage[]> AssemblyCompilationFinished;
+        public Action<AssemblyInfo, CompilerMessage[]> AssemblyCompilationFinished;
 
         public static CodeOptimization CodeOptimization = CodeOptimization.Release;
 
@@ -206,14 +206,15 @@ namespace Unity.ProjectAuditor.Editor.Utils
 
             PrepareAssemblyBuilders(assemblies, (assemblyPath, messages) =>
             {
-                var assemblyName = Path.GetFileNameWithoutExtension(assemblyPath);
+                var assemblyInfo = AssemblyInfoProvider.GetAssemblyInfoFromAssemblyPath(assemblyPath);
+                var assemblyName = assemblyInfo.name;
                 m_AssemblyCompilationUnits[assemblyName].messages = messages;
 
                 if (progress != null)
                     progress.Advance(assemblyName);
 
                 if (AssemblyCompilationFinished != null)
-                    AssemblyCompilationFinished(assemblyName, messages);
+                    AssemblyCompilationFinished(assemblyInfo, messages);
             });
             UpdateAssemblyBuilders();
 
