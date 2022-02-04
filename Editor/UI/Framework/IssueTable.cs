@@ -208,17 +208,23 @@ namespace Unity.ProjectAuditor.Editor.UI.Framework
 
         void CellGUI(Rect cellRect, TreeViewItem treeViewItem, int columnIndex, ref RowGUIArgs args)
         {
-            var property = m_Layout.properties[columnIndex];
+            // indent first column, if necessary
+            if (columnIndex == 0)
+            {
+                if (!hasSearch && !m_FlatView)
+                {
+                    var indent = GetContentIndent(treeViewItem) + extraSpaceBeforeIconAndLabel;
+                    cellRect.xMin += indent;
+                    CenterRectUsingSingleLineHeight(ref cellRect);
+                    EditorGUILayout.Space();
+                }
+                return;
+            }
+
+            var property = m_Layout.properties[columnIndex - 1];
             var columnType = property.type;
 
-            // indent first column, if necessary
-            if (columnIndex == 0 && !hasSearch && !m_FlatView)
-            {
-                var indent = GetContentIndent(treeViewItem) + extraSpaceBeforeIconAndLabel;
-                cellRect.xMin += indent;
-                CenterRectUsingSingleLineHeight(ref cellRect);
-            }
-            else if (m_Layout.hierarchy && property.type == PropertyType.Description)
+            if (m_Layout.hierarchy && property.type == PropertyType.Description)
             {
                 var indent = GetContentIndent(treeViewItem);
                 cellRect.xMin += indent;
@@ -247,7 +253,7 @@ namespace Unity.ProjectAuditor.Editor.UI.Framework
 
             if (item.IsGroup())
             {
-                if (columnIndex == 0)
+                //if (columnIndex == 0)
                 {
                     switch (descriptor.severity)
                     {
@@ -265,8 +271,8 @@ namespace Unity.ProjectAuditor.Editor.UI.Framework
                             break;
                     }
                 }
-                else if (columnType == PropertyType.Area)
-                    EditorGUI.LabelField(cellRect, new GUIContent(areaNames, areaLongDescription), labelStyle);
+//                else if (columnType == PropertyType.Area)
+//                  EditorGUI.LabelField(cellRect, new GUIContent(areaNames, areaLongDescription), labelStyle);
             }
             else
                 switch (columnType)

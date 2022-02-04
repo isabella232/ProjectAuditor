@@ -70,7 +70,18 @@ namespace Unity.ProjectAuditor.Editor.UI.Framework
                 return;
 
             var state = new TreeViewState();
-            var columns = new MultiColumnHeaderState.Column[layout.properties.Length];
+            var columns = new List<MultiColumnHeaderState.Column>();
+
+            // add grouping column
+            columns.Add(new MultiColumnHeaderState.Column
+            {
+                headerContent = new GUIContent(string.Empty, string.Empty),
+                width = 10,
+                minWidth = 10,
+                autoResize = true
+            });
+
+//            var columns = new MultiColumnHeaderState.Column[layout.properties.Length];
             for (var i = 0; i < layout.properties.Length; i++)
             {
                 var property = layout.properties[i];
@@ -89,17 +100,17 @@ namespace Unity.ProjectAuditor.Editor.UI.Framework
                         break;
                 }
 
-                columns[i] = new MultiColumnHeaderState.Column
+                columns.Add(new MultiColumnHeaderState.Column
                 {
                     headerContent = new GUIContent(property.name, layout.properties[i].longName),
                     width = width,
                     minWidth = 20,
                     autoResize = true
-                };
+                });
             }
 
             m_Table = new IssueTable(state,
-                new MultiColumnHeader(new MultiColumnHeaderState(columns)),
+                new MultiColumnHeader(new MultiColumnHeaderState(columns.ToArray())),
                 m_Desc,
                 layout,
                 m_Config,
